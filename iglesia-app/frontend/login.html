@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Acceso — Iglesia</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  <style>
+    :root{--primary:#1D9E75;--primary-l:#E1F5EE;--primary-d:#0F6E56;--red:#A32D2D;--red-l:#FCEBEB;--bg:#fff;--bg2:#F8F8F6;--border:rgba(0,0,0,0.1);--text:#1a1a18;--text2:#5F5E5A;--radius:12px;--radius-sm:8px}
+    @media(prefers-color-scheme:dark){:root{--bg:#1a1a18;--bg2:#242422;--border:rgba(255,255,255,0.1);--text:#f0efe8;--text2:#9c9a92;--primary-l:#04342C;--red-l:#501313}}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg2);color:var(--text);min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:32px 28px;width:100%;max-width:380px}
+    .logo{text-align:center;margin-bottom:28px}
+    .logo-icon{width:120px;height:120px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+    .logo-icon img{width:320px;height:320px;object-fit:contain}
+    .logo-title{font-size:20px;font-weight:700;color:var(--text)}
+    .logo-sub{font-size:20px;color:var(--text2);margin-top:4px}
+    .input-group{margin-bottom:14px}
+    .input-label{font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500;display:block}
+    .input-wrap{position:relative}
+    .input-field{width:100%;padding:12px 14px;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-size:15px;outline:none;transition:border-color .12s}
+    .input-field:focus{border-color:var(--primary)}
+    .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;padding:4px}
+    .btn-primary{width:100%;padding:14px;border-radius:var(--radius-sm);border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+    .btn-primary:active{opacity:.85}
+    .btn-primary:disabled{opacity:.6;cursor:not-allowed}
+    .error-msg{background:var(--red-l);color:var(--red);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;margin-bottom:14px;display:none}
+    .error-msg.show{display:block}
+    .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .version{text-align:center;font-size:11px;color:var(--text2);margin-top:24px}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">
+      <img src="/logo.png" alt="Logo Iglesia">
+    </div>
+    <div class="logo-title">KAVOD</div>
+    <div class="logo-sub">Ingresa con tu cuenta</div>
+  </div>
+
+  <div class="error-msg" id="error-msg"></div>
+
+  <div class="input-group">
+    <label class="input-label">Correo electrónico</label>
+    <input type="email" class="input-field" id="email" placeholder="tu@correo.com" autocomplete="email">
+  </div>
+
+  <div class="input-group">
+    <label class="input-label">Contraseña</label>
+    <div class="input-wrap">
+      <input type="password" class="input-field" id="password" placeholder="••••••••" autocomplete="current-password">
+      <button class="eye-btn" tabindex="-1" id="eye-btn">👁</button>
+    </div>
+  </div>
+
+  <button class="btn-primary" id="btn-login">
+    <span id="btn-txt">Ingresar</span>
+  </button>
+
+  <div class="version">Sistema de Gestión Iglesia · v1.0</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://cbpaofgpqwcrcpzldnch.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNicGFvZmdwcXdjcmNwemxkbmNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNjkxMTIsImV4cCI6MjA4OTY0NTExMn0.wxM0JDa02wBd1BZD05kqOSsZh5xSGsf9tV_hoxWopcY';
+
+function togglePwd() {
+  const inp = document.getElementById('password');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function setLoading(on) {
+  const btn = document.getElementById('btn-login');
+  const txt = document.getElementById('btn-txt');
+  btn.disabled = on;
+  txt.innerHTML = on ? '<div class="spinner"></div>' : 'Ingresar';
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function hideError() {
+  document.getElementById('error-msg').classList.remove('show');
+}
+
+async function login() {
+  hideError();
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  if (!email)    { showError('Ingresa tu correo electrónico'); return; }
+  if (!password) { showError('Ingresa tu contraseña'); return; }
+
+  setLoading(true);
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError(data.error_description || data.msg || 'Correo o contraseña incorrectos');
+      setLoading(false);
+      return;
+    }
+
+    localStorage.setItem('iglesia_token',   data.access_token);
+    localStorage.setItem('iglesia_refresh', data.refresh_token);
+    localStorage.setItem('iglesia_user',    JSON.stringify(data.user));
+
+    const perfil = await fetch('/api/auth/perfil', {
+      headers: { 'Authorization': 'Bearer ' + data.access_token }
+    });
+    const perfilData = await perfil.json();
+    if (perfilData.data) {
+      localStorage.setItem('iglesia_perfil', JSON.stringify(perfilData.data));
+    }
+
+    const rol = perfilData.data?.rol || 'portero';
+    const destinos = {
+      admin:    '/porteria.html',
+      pastor:   '/porteria.html',
+      portero:  '/porteria.html',
+      tesorero: '/porteria.html'
+    };
+    window.location.href = destinos[rol] || '/porteria.html';
+
+  } catch (e) {
+    showError('Error de conexión. Verifica tu internet.');
+    setLoading(false);
+  }
+}
+
+document.getElementById('btn-login').addEventListener('click', login);
+document.getElementById('eye-btn').addEventListener('click', togglePwd);
+document.getElementById('email').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('password').focus();
+});
+document.getElementById('password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') login();
+});
+
+// Si ya hay sesión válida, redirigir directamente
+const token = localStorage.getItem('iglesia_token');
+if (token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.exp * 1000 > Date.now()) window.location.href = '/porteria.html';
+    else localStorage.clear();
+  } catch { localStorage.clear(); }
+}
+</script>
+</body>
+</html>
