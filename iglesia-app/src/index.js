@@ -23,7 +23,7 @@ app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 // Frontend estático
-app.use(express.static(join(__dirname, '../frontend')));
+app.use(express.static(join(process.cwd(), 'frontend')));
 
 // Health check (público)
 app.get('/health', (_req, res) => res.json({ ok: true, ts: new Date() }));
