@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Usuarios — Iglesia</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  <style>
+    :root{--primary:#1D9E75;--primary-l:#E1F5EE;--primary-d:#0F6E56;--amber:#BA7517;--amber-l:#FAEEDA;--blue:#185FA5;--blue-l:#E6F1FB;--red:#A32D2D;--red-l:#FCEBEB;--gray:#5F5E5A;--gray-l:#F1EFE8;--bg:#fff;--bg2:#F8F8F6;--border:rgba(0,0,0,0.1);--text:#1a1a18;--text2:#5F5E5A;--radius:12px;--radius-sm:8px}
+    @media(prefers-color-scheme:dark){:root{--bg:#1a1a18;--bg2:#242422;--border:rgba(255,255,255,0.1);--text:#f0efe8;--text2:#9c9a92;--primary-l:#04342C;--amber-l:#412402;--blue-l:#042C53;--red-l:#501313;--gray-l:#2C2C2A}}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg2);color:var(--text);min-height:100dvh}
+    .app{max-width:480px;margin:0 auto;min-height:100dvh;background:var(--bg2)}
+    .header{background:var(--bg);border-bottom:0.5px solid var(--border);padding:14px 16px;position:sticky;top:0;z-index:10}
+    .header-row{display:flex;align-items:center;justify-content:space-between}
+    .header-title{font-size:17px;font-weight:600}
+    .back-btn{display:inline-flex;align-items:center;gap:4px;font-size:14px;color:var(--primary);cursor:pointer;border:none;background:none;padding:0;font-weight:500;text-decoration:none}
+    .content{padding:16px}
+    .card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px}
+    .user-row{display:flex;align-items:center;gap:12px}
+    .user-avatar{width:40px;height:40px;border-radius:50%;background:var(--blue-l);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;flex-shrink:0}
+    .user-info{flex:1}
+    .user-name{font-size:14px;font-weight:500;color:var(--text)}
+    .user-email{font-size:12px;color:var(--text2);margin-top:1px}
+    .user-meta{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+    .rol-badge{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:500}
+    .rol-admin   {background:#E1F5EE;color:#0F6E56}
+    .rol-pastor  {background:#E6F1FB;color:#185FA5}
+    .rol-portero {background:#F1EFE8;color:#5F5E5A}
+    .rol-tesorero{background:#FAEEDA;color:#854F0B}
+    .activo-badge{font-size:10px;padding:2px 8px;border-radius:99px;background:var(--primary-l);color:var(--primary-d)}
+    .inactivo-badge{font-size:10px;padding:2px 8px;border-radius:99px;background:var(--red-l);color:var(--red)}
+    .btn-sm{padding:6px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer}
+    .section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);margin:16px 0 8px}
+    .loading{text-align:center;padding:32px 16px;color:var(--text2);font-size:14px}
+    .spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .empty{text-align:center;padding:32px 16px;color:var(--text2);font-size:14px}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;display:none;align-items:flex-end;justify-content:center}
+    .modal-overlay.show{display:flex}
+    .modal{background:var(--bg);border-radius:var(--radius) var(--radius) 0 0;padding:20px 16px 32px;width:100%;max-width:480px}
+    .modal-title{font-size:16px;font-weight:600;margin-bottom:16px}
+    .modal-actions{display:flex;gap:8px;margin-top:16px}
+    .input-group{margin-bottom:12px}
+    .input-label{font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500;display:block}
+    .input-field{width:100%;padding:11px 14px;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-size:15px;outline:none}
+    .input-field:focus{border-color:var(--primary)}
+    select.input-field{cursor:pointer}
+    .btn-primary{width:100%;padding:13px;border-radius:var(--radius-sm);border:none;background:var(--primary);color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+    .btn-secondary{width:100%;padding:11px;border-radius:var(--radius-sm);border:0.5px solid var(--border);background:transparent;color:var(--text2);font-size:13px;cursor:pointer}
+    .btn-danger-sm{padding:6px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--red);background:transparent;color:var(--red);font-size:12px;cursor:pointer}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 20px;border-radius:99px;font-size:13px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+    .toast.show{opacity:1}
+    .acceso-denegado{text-align:center;padding:48px 24px}
+    .acceso-denegado .icon{font-size:48px;margin-bottom:12px}
+    .acceso-denegado h2{font-size:18px;font-weight:600;margin-bottom:8px}
+    .acceso-denegado p{font-size:14px;color:var(--text2)}
+  </style>
+</head>
+<body>
+
+<script>
+(function() {
+  const token = localStorage.getItem('iglesia_token');
+  if (!token) { window.location.href = '/login.html'; return; }
+  try {
+    const p = JSON.parse(atob(token.split('.')[1]));
+    if (p.exp * 1000 < Date.now()) { localStorage.clear(); window.location.href = '/login.html'; }
+  } catch { window.location.href = '/login.html'; }
+})();
+
+const _origFetch = window.fetch;
+window.fetch = function(url, opts = {}) {
+  if (typeof url === 'string' && url.startsWith('/api')) {
+    const token = localStorage.getItem('iglesia_token');
+    if (token) opts.headers = { ...opts.headers, 'Authorization': 'Bearer ' + token };
+  }
+  return _origFetch(url, opts);
+};
+</script>
+
+<div class="app">
+  <div class="header">
+    <div class="header-row">
+      <div style="display:flex;align-items:center;gap:12px">
+        <a href="/porteria.html" class="back-btn">← Volver</a>
+        <div class="header-title">Usuarios</div>
+      </div>
+      <button class="btn-sm" onclick="abrirModalNuevo()">+ Nuevo</button>
+    </div>
+  </div>
+
+  <div class="content" id="main-content">
+    <div class="loading"><div class="spinner"></div>Cargando usuarios...</div>
+  </div>
+</div>
+
+<!-- Modal editar usuario -->
+<div class="modal-overlay" id="modal-usuario">
+  <div class="modal">
+    <div class="modal-title" id="modal-titulo">Editar usuario</div>
+    <div class="input-group">
+      <label class="input-label">Nombre</label>
+      <input type="text" class="input-field" id="u-nombre" placeholder="Nombre completo">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Rol</label>
+      <select class="input-field" id="u-rol">
+        <option value="portero">Portero — solo portería y asistencia</option>
+        <option value="pastor">Pastor — ver todo menos finanzas</option>
+        <option value="tesorero">Tesorero — solo finanzas</option>
+        <option value="admin">Administrador — acceso total</option>
+      </select>
+    </div>
+    <div class="input-group" id="u-activo-wrap">
+      <label class="input-label">Estado</label>
+      <select class="input-field" id="u-activo">
+        <option value="true">Activo</option>
+        <option value="false">Inactivo (sin acceso)</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" style="flex:1" onclick="guardarUsuario()">Guardar</button>
+      <button class="btn-secondary" style="flex:1" onclick="cerrarModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal nuevo usuario -->
+<div class="modal-overlay" id="modal-nuevo">
+  <div class="modal">
+    <div class="modal-title">Crear nuevo usuario</div>
+    <div class="input-group">
+      <label class="input-label">Nombre completo</label>
+      <input type="text" class="input-field" id="n-nombre" placeholder="Nombre y apellido">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Correo electrónico</label>
+      <input type="email" class="input-field" id="n-email" placeholder="correo@iglesia.com">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Contraseña temporal</label>
+      <input type="text" class="input-field" id="n-password" placeholder="Mínimo 8 caracteres" value="Iglesia2024!">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Rol</label>
+      <select class="input-field" id="n-rol">
+        <option value="portero">Portero</option>
+        <option value="pastor">Pastor</option>
+        <option value="tesorero">Tesorero</option>
+        <option value="admin">Administrador</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" style="flex:1" onclick="crearUsuario()">Crear usuario</button>
+      <button class="btn-secondary" style="flex:1" onclick="document.getElementById('modal-nuevo').classList.remove('show')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '/api';
+let usuarios = [];
+let editandoId = null;
+const perfil = JSON.parse(localStorage.getItem('iglesia_perfil') || '{}');
+
+async function api(method, path, body) {
+  const r = await fetch(API + path, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || 'Error');
+  return j.data ?? j;
+}
+
+function toast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = isError ? 'var(--red)' : 'var(--text)';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+function cerrarModal() {
+  document.getElementById('modal-usuario').classList.remove('show');
+}
+
+const ROL_LABEL = { admin:'Administrador', pastor:'Pastor', portero:'Portero', tesorero:'Tesorero' };
+
+function iniciales(nombre) {
+  return (nombre || '?').split(' ').map(p => p[0]).join('').toUpperCase().slice(0,2);
+}
+
+async function cargarUsuarios() {
+  const content = document.getElementById('main-content');
+
+  // Verificar que sea admin
+  if (perfil.rol !== 'admin') {
+    content.innerHTML = `<div class="acceso-denegado">
+      <div class="icon">🔒</div>
+      <h2>Acceso restringido</h2>
+      <p>Solo los administradores pueden gestionar usuarios.</p>
+    </div>`;
+    return;
+  }
+
+  try {
+    const data = await api('GET', '/auth/usuarios');
+    usuarios = Array.isArray(data) ? data : [];
+    renderUsuarios();
+  } catch (e) {
+    content.innerHTML = `<div class="empty">Error al cargar usuarios: ${e.message}</div>`;
+  }
+}
+
+function renderUsuarios() {
+  const content = document.getElementById('main-content');
+  if (!usuarios.length) {
+    content.innerHTML = '<div class="empty">No hay usuarios registrados aún</div>';
+    return;
+  }
+
+  const activos   = usuarios.filter(u => u.activo);
+  const inactivos = usuarios.filter(u => !u.activo);
+
+  let html = '';
+
+  if (activos.length) {
+    html += `<div class="section-label">Activos (${activos.length})</div>`;
+    html += activos.map(u => userCard(u)).join('');
+  }
+  if (inactivos.length) {
+    html += `<div class="section-label">Inactivos (${inactivos.length})</div>`;
+    html += inactivos.map(u => userCard(u)).join('');
+  }
+
+  content.innerHTML = html;
+}
+
+function userCard(u) {
+  const nombre = u.nombre_display || u.miembros
+    ? (u.miembros?.nombre || '') + ' ' + (u.miembros?.apellido || '')
+    : '—';
+  const nombre2 = nombre.trim() || 'Sin nombre';
+  return `<div class="card">
+    <div class="user-row">
+      <div class="user-avatar">${iniciales(nombre2)}</div>
+      <div class="user-info">
+        <div class="user-name">${nombre2}</div>
+        <div class="user-meta">
+          <span class="rol-badge rol-${u.rol}">${ROL_LABEL[u.rol] || u.rol}</span>
+          ${u.activo
+            ? '<span class="activo-badge">Activo</span>'
+            : '<span class="inactivo-badge">Inactivo</span>'}
+        </div>
+      </div>
+      <button class="btn-sm" onclick="abrirModalEditar('${u.id}')">Editar</button>
+    </div>
+  </div>`;
+}
+
+function abrirModalEditar(id) {
+  const u = usuarios.find(x => x.id === id);
+  if (!u) return;
+  editandoId = id;
+  const nombre = u.nombre_display || '';
+  document.getElementById('modal-titulo').textContent = 'Editar usuario';
+  document.getElementById('u-nombre').value = nombre;
+  document.getElementById('u-rol').value    = u.rol;
+  document.getElementById('u-activo').value = u.activo ? 'true' : 'false';
+  document.getElementById('modal-usuario').classList.add('show');
+}
+
+async function guardarUsuario() {
+  const nombre = document.getElementById('u-nombre').value.trim();
+  const rol    = document.getElementById('u-rol').value;
+  const activo = document.getElementById('u-activo').value === 'true';
+
+  try {
+    await api('PATCH', `/auth/usuarios/${editandoId}`, { rol, activo, nombre_display: nombre });
+    // Actualizar local
+    const idx = usuarios.findIndex(u => u.id === editandoId);
+    if (idx !== -1) usuarios[idx] = { ...usuarios[idx], rol, activo, nombre_display: nombre };
+    renderUsuarios();
+    cerrarModal();
+    toast('Usuario actualizado');
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+}
+
+function abrirModalNuevo() {
+  document.getElementById('n-nombre').value   = '';
+  document.getElementById('n-email').value    = '';
+  document.getElementById('n-password').value = 'Iglesia2024!';
+  document.getElementById('n-rol').value      = 'portero';
+  document.getElementById('modal-nuevo').classList.add('show');
+}
+
+async function crearUsuario() {
+  const nombre   = document.getElementById('n-nombre').value.trim();
+  const email    = document.getElementById('n-email').value.trim();
+  const password = document.getElementById('n-password').value.trim();
+  const rol      = document.getElementById('n-rol').value;
+
+  if (!nombre || !email || !password) { toast('Completa todos los campos', true); return; }
+
+  try {
+    await api('POST', '/auth/usuarios', { email, password, rol, nombre_display: nombre });
+    document.getElementById('modal-nuevo').classList.remove('show');
+    toast('Usuario creado correctamente');
+    cargarUsuarios();
+  } catch (e) {
+    toast('Error: ' + e.message, true);
+  }
+}
+
+cargarUsuarios();
+</script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Registro — Iglesia</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  <style>
+    :root{--primary:#1D9E75;--primary-l:#E1F5EE;--primary-d:#0F6E56;--red:#A32D2D;--red-l:#FCEBEB;--bg:#fff;--bg2:#F8F8F6;--border:rgba(0,0,0,0.1);--text:#1a1a18;--text2:#5F5E5A;--radius:12px;--radius-sm:8px}
+    @media(prefers-color-scheme:dark){:root{--bg:#1a1a18;--bg2:#242422;--border:rgba(255,255,255,0.1);--text:#f0efe8;--text2:#9c9a92;--primary-l:#04342C;--red-l:#501313}}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg2);color:var(--text);min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:32px 28px;width:100%;max-width:380px}
+    .logo{text-align:center;margin-bottom:24px}
+    .logo-icon{width:64px;height:64px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+    .logo-icon img{width:64px;height:64px;object-fit:contain}
+    .logo-title{font-size:20px;font-weight:700;color:var(--text)}
+    .logo-sub{font-size:13px;color:var(--text2);margin-top:4px}
+    .input-group{margin-bottom:14px}
+    .input-label{font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500;display:block}
+    .input-wrap{position:relative}
+    .input-field{width:100%;padding:12px 14px;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-size:15px;outline:none;transition:border-color .12s}
+    .input-field:focus{border-color:var(--primary)}
+    .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;padding:4px}
+    .btn-primary{width:100%;padding:14px;border-radius:var(--radius-sm);border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s}
+    .btn-primary:active{opacity:.85}
+    .btn-primary:disabled{opacity:.6;cursor:not-allowed}
+    .error-msg{background:var(--red-l);color:var(--red);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;margin-bottom:14px;display:none}
+    .error-msg.show{display:block}
+    .success-msg{background:var(--primary-l);color:var(--primary-d);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;margin-bottom:14px;display:none}
+    .success-msg.show{display:block}
+    .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .link-row{text-align:center;font-size:13px;color:var(--text2);margin-top:18px}
+    .link-row a{color:var(--primary);text-decoration:none;font-weight:500}
+    .version{text-align:center;font-size:11px;color:var(--text2);margin-top:20px}
+    .req{font-size:11px;color:var(--text2);margin-top:4px}
+    .req span{display:inline-block;margin-right:8px}
+    .req .ok{color:var(--primary)}
+    .req .no{color:var(--text2)}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon"><img src="/logo.png" alt="Logo"></div>
+    <div class="logo-title">Crear cuenta</div>
+    <div class="logo-sub">Sistema de Gestión Iglesia</div>
+  </div>
+
+  <div class="error-msg" id="error-msg"></div>
+  <div class="success-msg" id="success-msg"></div>
+
+  <div class="input-group">
+    <label class="input-label">Nombre completo</label>
+    <input type="text" class="input-field" id="nombre" placeholder="Tu nombre y apellido" autocomplete="name">
+  </div>
+
+  <div class="input-group">
+    <label class="input-label">Correo electrónico</label>
+    <input type="email" class="input-field" id="email" placeholder="tu@correo.com" autocomplete="email">
+  </div>
+
+  <div class="input-group">
+    <label class="input-label">Contraseña</label>
+    <div class="input-wrap">
+      <input type="password" class="input-field" id="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+      <button class="eye-btn" id="eye-btn">👁</button>
+    </div>
+    <div class="req" id="req-wrap">
+      <span id="req-len" class="no">● 8 caracteres</span>
+      <span id="req-num" class="no">● Un número</span>
+    </div>
+  </div>
+
+  <div class="input-group">
+    <label class="input-label">Confirmar contraseña</label>
+    <div class="input-wrap">
+      <input type="password" class="input-field" id="password2" placeholder="Repite tu contraseña" autocomplete="new-password">
+    </div>
+  </div>
+
+  <button class="btn-primary" id="btn-registro">
+    <span id="btn-txt">Crear cuenta</span>
+  </button>
+
+  <div class="link-row">¿Ya tienes cuenta? <a href="/login.html">Ingresar</a></div>
+  <div class="version">Sistema de Gestión Iglesia · v1.0</div>
+</div>
+
+<script>
+const SUPABASE_URL     = 'https://cbpaofgpqwcrcpzldnch.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNicGFvZmdwcXdjcmNwemxkbmNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNjkxMTIsImV4cCI6MjA4OTY0NTExMn0.wxM0JDa02wBd1BZD05kqOSsZh5xSGsf9tV_hoxWopcY';
+
+const pwdInput = document.getElementById('password');
+const pwd2Input = document.getElementById('password2');
+
+// Validación en tiempo real
+pwdInput.addEventListener('input', () => {
+  const v = pwdInput.value;
+  document.getElementById('req-len').className = v.length >= 8 ? 'ok' : 'no';
+  document.getElementById('req-num').className = /\d/.test(v) ? 'ok' : 'no';
+});
+
+document.getElementById('eye-btn').addEventListener('click', () => {
+  pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
+});
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg; el.classList.add('show');
+  document.getElementById('success-msg').classList.remove('show');
+}
+function showSuccess(msg) {
+  const el = document.getElementById('success-msg');
+  el.textContent = msg; el.classList.add('show');
+  document.getElementById('error-msg').classList.remove('show');
+}
+function setLoading(on) {
+  const btn = document.getElementById('btn-registro');
+  btn.disabled = on;
+  document.getElementById('btn-txt').innerHTML = on
+    ? '<div class="spinner"></div>' : 'Crear cuenta';
+}
+
+async function registrar() {
+  const nombre   = document.getElementById('nombre').value.trim();
+  const email    = document.getElementById('email').value.trim();
+  const password = pwdInput.value;
+  const password2 = pwd2Input.value;
+
+  if (!nombre)             { showError('Ingresa tu nombre completo'); return; }
+  if (!email)              { showError('Ingresa tu correo electrónico'); return; }
+  if (password.length < 8) { showError('La contraseña debe tener al menos 8 caracteres'); return; }
+  if (!/\d/.test(password)) { showError('La contraseña debe incluir al menos un número'); return; }
+  if (password !== password2) { showError('Las contraseñas no coinciden'); return; }
+
+  setLoading(true);
+  try {
+    // 1. Crear usuario en Supabase Auth
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      const msg = data.msg || data.error_description || 'Error al crear la cuenta';
+      showError(msg === 'User already registered' ? 'Este correo ya está registrado' : msg);
+      setLoading(false);
+      return;
+    }
+
+    // 2. Crear perfil en usuarios_sistema via nuestra API
+    if (data.access_token) {
+      await fetch('/api/auth/registro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + data.access_token
+        },
+        body: JSON.stringify({ nombre_display: nombre, rol: 'portero' })
+      });
+
+      // Login automático
+      localStorage.setItem('iglesia_token',   data.access_token);
+      localStorage.setItem('iglesia_refresh', data.refresh_token);
+      localStorage.setItem('iglesia_user',    JSON.stringify(data.user));
+      localStorage.setItem('iglesia_perfil',  JSON.stringify({ nombre, rol: 'portero' }));
+      window.location.href = '/porteria.html';
+    } else {
+      // Supabase requiere confirmación de email
+      showSuccess('¡Cuenta creada! Revisa tu correo para confirmar tu cuenta y luego inicia sesión.');
+      setLoading(false);
+    }
+  } catch (e) {
+    showError('Error de conexión. Verifica tu internet.');
+    setLoading(false);
+  }
+}
+
+document.getElementById('btn-registro').addEventListener('click', registrar);
+document.getElementById('password2').addEventListener('keydown', e => {
+  if (e.key === 'Enter') registrar();
+});
+
+// Si ya hay sesión, redirigir
+const token = localStorage.getItem('iglesia_token');
+if (token) {
+  try {
+    const p = JSON.parse(atob(token.split('.')[1]));
+    if (p.exp * 1000 > Date.now()) window.location.href = '/porteria.html';
+    else localStorage.clear();
+  } catch { localStorage.clear(); }
+}
+</script>
+</body>
+</html>

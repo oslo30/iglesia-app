@@ -134,4 +134,35 @@ router.patch('/usuarios/:id', requireAuth, requireRol('admin'), async (req, res,
   } catch (e) { next(e); }
 });
 
+
+// ── POST /api/auth/registro — registro público (rol portero) ──
+router.post('/registro', requireAuth, async (req, res, next) => {
+  try {
+    const { nombre_display, rol = 'portero' } = req.body;
+
+    // Verificar si ya tiene perfil
+    const { data: existe } = await supabase
+      .from('usuarios_sistema')
+      .select('id')
+      .eq('user_id', req.user.id)
+      .maybeSingle();
+
+    if (existe) return ok(res, existe);
+
+    const { data, error } = await supabase
+      .from('usuarios_sistema')
+      .insert({
+        user_id:        req.user.id,
+        rol:            'portero', // siempre portero al registrarse
+        nombre_display: nombre_display || req.user.email,
+        activo:         true
+      })
+      .select()
+      .single();
+
+    if (error) throw new AppError(error.message, 500);
+    created(res, data);
+  } catch (e) { next(e); }
+});
+
 export default router;
