@@ -171,8 +171,8 @@ async function registrar() {
       window.location.href = '/porteria.html';
     } else {
       // Supabase requiere confirmación de email
-      showSuccess('¡Cuenta creada! Revisa tu correo para confirmar tu cuenta y luego inicia sesión.');
-      setLoading(false);
+      showSuccess('¡Cuenta creada! Revisa tu correo para confirmarla. Redirigiendo al login...');
+      setTimeout(() => window.location.href = '/login.html', 3000);
     }
   } catch (e) {
     showError('Error de conexión. Verifica tu internet.');
