@@ -1528,20 +1528,35 @@ async function guardarServicio() {
   if (!fecha) { toast('Selecciona fecha y hora', true); return; }
   const fechaSvc = new Date(fecha);
   const ahora = new Date();
-  const diffHoras = (fechaSvc - ahora) / 3600000;
-  if (diffHoras < 1) { toast('Solo puedes crear servicios con al menos 1 hora de anticipación', true); return; }
   const dia = fechaSvc.getDay();
   const hora = fechaSvc.getHours();
   const minuto = fechaSvc.getMinutes();
-  const esDomingo = dia === 0;
-  const esMartesSabado = dia >= 2 && dia <= 6;
-  if (!esDomingo && !esMartesSabado) { toast('Los servicios solo pueden ser de martes a domingo', true); return; }
-  if (esDomingo) {
-    if ((hora === 9 && minuto === 0) || (hora === 18 && minuto === 0)) {
-      // válido
-    } else { toast('Los servicios dominicales solo pueden ser a las 9:00 AM o 6:00 PM', true); return; }
-  } else {
-    if (hora !== 18 || minuto !== 30) { toast('Los servicios de martes a sábado deben ser a las 6:30 PM', true); return; }
+  const horaSvcMin = hora * 60 + minuto;
+
+  // Solo martes(2), jueves(4), sabado(6) y domingo(0)
+  if (dia !== 0 && dia !== 2 && dia !== 4 && dia !== 6) {
+    toast('Los servicios solo pueden ser los martes, jueves, sábados y domingos', true); return;
+  }
+
+  // Servicio martes, jueves o sabado a las 6:30 PM
+  if (dia !== 0 && (horaSvcMin < 18 * 60 + 30 || horaSvcMin > 20 * 60 + 30)) {
+    toast('Solo puedes crear servicios a las 6:30 PM (martes, jueves y sábado)', true); return;
+  }
+
+  // Servicio domingo manana: 9:00 AM a 11:30 AM
+  if (dia === 0 && horaSvcMin >= 9 * 60 && horaSvcMin <= 11 * 60 + 30) {
+    const ventanaAbre = new Date(fechaSvc);
+    ventanaAbre.setHours(9, 0, 0, 0);
+    if (ahora < ventanaAbre) { toast('El servicio dominical de mañana se puede crear a partir de las 9:00 AM', true); return; }
+  }
+  // Servicio domingo tarde: 6:00 PM a 7:30 PM
+  else if (dia === 0 && horaSvcMin >= 18 * 60 && horaSvcMin <= 19 * 60 + 30) {
+    const ventanaAbre = new Date(fechaSvc);
+    ventanaAbre.setHours(18, 0, 0, 0);
+    if (ahora < ventanaAbre) { toast('El servicio dominical de tarde se puede crear a partir de las 6:00 PM', true); return; }
+  }
+  else {
+    toast('Los servicios dominicales solo pueden ser a las 9:00 AM o 6:00 PM', true); return;
   }
   const payload = { nombre, caracter: caracter || null, fecha_hora: new Date(fecha).toISOString(), estado: 'programado', responsable_id: resp || null };
   try {
