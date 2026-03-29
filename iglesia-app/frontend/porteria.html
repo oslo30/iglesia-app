@@ -8,10 +8,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
     :root {
-      --primary: #1D9E75;
-      --primary-l: #E1F5EE;
-      --primary-d: #0F6E56;
-      --primary-s: rgba(29, 158, 117, 0.12);
+      --primary: #00519A;
+      --primary-l: #E8F0F8;
+      --primary-d: #003A6B;
+      --primary-s: rgba(0, 81, 154, 0.12);
       --amber: #BA7517;
       --amber-l: #FAEEDA;
       --blue: #185FA5;
@@ -96,8 +96,8 @@
     }
 
     .header-logo {
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      height: 100px;
       border-radius: var(--radius);
       overflow: hidden;
       display: flex;
@@ -1600,8 +1600,8 @@ async function cargarGrafica(periodo) {
     data: {
       labels,
       datasets: [
-        { label: 'Adultos', data: rev.map(r => r.adultos || 0), backgroundColor: '#1D9E75cc', borderRadius: 4 },
-        { label: 'Niños', data: rev.map(r => r.ninos || 0), backgroundColor: '#378ADDcc', borderRadius: 4 },
+        { label: 'Adultos', data: rev.map(r => r.adultos || 0), backgroundColor: '#00519Acc', borderRadius: 4 },
+        { label: 'Niños', data: rev.map(r => r.ninos || 0), backgroundColor: '#1E88D4cc', borderRadius: 4 },
         { label: 'Amigos', data: rev.map(r => r.amigos || 0), backgroundColor: '#BA7517cc', borderRadius: 4 }
       ]
     },
@@ -1634,9 +1634,7 @@ try {
   const rol = perfil.rol || 'portero';
   const ROLES = { admin: 'Administrador', pastor: 'Pastor', portero: 'Ujier', tesorero: 'Tesorero' };
   if (nombre) {
-    const hora = new Date().getHours();
-    const saludo = hora < 12 ? 'Buenos días' : hora < 18 ? 'Buenas tardes' : 'Buenas noches';
-    document.getElementById('user-greeting').textContent = `${saludo} ${nombre}`;
+    document.getElementById('user-greeting').textContent = `Dios te bendiga, ${nombre}`;
     const rolLabel = ROLES[rol] || 'Ujier';
     document.getElementById('user-info').textContent = rolLabel;
     document.getElementById('user-info').style.display = 'block';
