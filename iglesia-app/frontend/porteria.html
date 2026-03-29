@@ -835,7 +835,10 @@
       z-index: 999;
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       pointer-events: none;
-      white-space: nowrap;
+      white-space: normal;
+      text-align: center;
+      max-width: calc(100vw - 32px);
+      line-height: 1.4;
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
     .toast.error { background: var(--red) }
@@ -1092,6 +1095,7 @@
       <div class="form-group">
         <div class="form-label">Responsable (opcional)</div>
         <select class="input-field" id="nsvc-responsable"><option value="">— Sin responsable —</option></select>
+        <span style="color:var(--primary);font-size:11px;cursor:pointer;display:inline-block;margin-top:4px" onclick="abrirModalMiembro('nsvc-responsable')">+ Agregar ujier</span>
       </div>
 
       <button class="btn-primary" id="nsvc-btn" onclick="guardarServicio()">Crear servicio</button>
