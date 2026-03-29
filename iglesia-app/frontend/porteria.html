@@ -6,6 +6,7 @@
   <title>Portería — Iglesia</title>
   <link rel="icon" type="image/png" href="/logo.png">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
       --primary: #00519A;
@@ -954,6 +955,12 @@
           <canvas id="grafica-asistencia" height="200"></canvas>
         </div>
         <div id="stats-resumen"></div>
+        <div style="padding: 16px">
+          <button class="btn-primary" style="width:100%" onclick="descargarEstadisticas()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Descargar imagen
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1697,6 +1704,21 @@ async function cargarGrafica(periodo) {
         <div class="hist-stat" style="background:var(--surface);border:1px solid var(--border)"><div class="hist-stat-val" style="color:var(--primary)">${Math.max(...tots)}</div><div class="hist-stat-lbl">Máximo</div></div>
         <div class="hist-stat" style="background:var(--surface);border:1px solid var(--border)"><div class="hist-stat-val" style="color:var(--amber)">${Math.min(...tots)}</div><div class="hist-stat-lbl">Mínimo</div></div>
       </div>`;
+  }
+}
+
+async function descargarEstadisticas() {
+  const el = document.getElementById('home-2');
+  el.scrollIntoView({ behavior: 'instant' });
+  try {
+    const canvas = await html2canvas(el, { useCORS: true, scale: 2, backgroundColor: '#ffffff' });
+    const link = document.createElement('a');
+    const fecha = new Date().toLocaleDateString('es-CO');
+    link.download = `estadisticas-ujieres-${fecha}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch {
+    toast('No se pudo generar la imagen', true);
   }
 }
 
