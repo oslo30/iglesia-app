@@ -518,7 +518,7 @@ window.fetch = function(url, opts = {}) {
     <div class="form-group">
       <label class="form-label">Rol</label>
       <select class="input-field" id="u-rol">
-        <option value="portero">Portero</option>
+        <option value="portero">Ujier</option>
         <option value="pastor">Pastor</option>
         <option value="tesorero">Tesorero</option>
         <option value="admin">Administrador</option>
@@ -563,7 +563,7 @@ window.fetch = function(url, opts = {}) {
     <div class="form-group">
       <label class="form-label">Rol</label>
       <select class="input-field" id="n-rol">
-        <option value="portero">Portero</option>
+        <option value="portero">Ujier</option>
         <option value="pastor">Pastor</option>
         <option value="tesorero">Tesorero</option>
         <option value="admin">Administrador</option>
@@ -612,7 +612,7 @@ function cerrarModalNuevo() {
   document.getElementById('modal-nuevo').classList.remove('show');
 }
 
-const ROL_LABEL = { admin:'Administrador', pastor:'Pastor', portero:'Portero', tesorero:'Tesorero' };
+const ROL_LABEL = { admin:'Administrador', pastor:'Pastor', portero:'Ujier', tesorero:'Tesorero' };
 
 function iniciales(nombre) {
   return (nombre || '?').split(' ').map(p => p[0]).join('').toUpperCase().slice(0,2);

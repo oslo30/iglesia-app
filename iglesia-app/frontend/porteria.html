@@ -96,14 +96,14 @@
     }
 
     .header-logo {
-      width: 44px;
-      height: 44px;
-      border-radius: var(--radius-sm);
+      width: 80px;
+      height: 80px;
+      border-radius: var(--radius);
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow);
       background: var(--surface);
       border: 1px solid var(--border);
     }
@@ -190,6 +190,19 @@
       font-size: 11px;
       color: var(--text3);
       padding-bottom: 12px;
+    }
+
+    #user-greeting {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    #user-info {
+      font-size: 10px;
+      color: var(--text3);
+      margin-top: 1px;
     }
 
     /* ── TABS ── */
@@ -846,8 +859,9 @@
             <img src="/logo.png" alt="Logo">
           </div>
           <div class="header-info">
-            <div class="header-title">Portería</div>
+            <div class="header-title">Ujieres</div>
             <div class="header-date" id="fecha-hoy"></div>
+            <div class="header-user" id="user-greeting"></div>
           </div>
         </div>
         <div class="header-right">
@@ -915,7 +929,7 @@
           <span>Responsable del registro</span>
           <span style="color:var(--primary);font-size:11px;cursor:pointer" onclick="abrirModalMiembro('reg-responsable')">+ Agregar</span>
         </div>
-        <select class="input-field" id="reg-responsable"><option value="">— Selecciona el portero —</option></select>
+        <select class="input-field" id="reg-responsable"><option value="">— Selecciona el ujier —</option></select>
       </div>
 
       <div class="counter-card">
@@ -1461,6 +1475,23 @@ async function guardarServicio() {
   const caracter = S.caracteresSeleccionados.join(', ');
   if (!nombre) { toast('Ingresa el nombre', true); return; }
   if (!fecha) { toast('Selecciona fecha y hora', true); return; }
+  const fechaSvc = new Date(fecha);
+  const ahora = new Date();
+  const diffHoras = (fechaSvc - ahora) / 3600000;
+  if (diffHoras < 1) { toast('Solo puedes crear servicios con al menos 1 hora de anticipación', true); return; }
+  const dia = fechaSvc.getDay();
+  const hora = fechaSvc.getHours();
+  const minuto = fechaSvc.getMinutes();
+  const esDomingo = dia === 0;
+  const esMartesSabado = dia >= 2 && dia <= 6;
+  if (!esDomingo && !esMartesSabado) { toast('Los servicios solo pueden ser de martes a domingo', true); return; }
+  if (esDomingo) {
+    if ((hora === 9 && minuto === 0) || (hora === 18 && minuto === 0)) {
+      // válido
+    } else { toast('Los servicios dominicales solo pueden ser a las 9:00 AM o 6:00 PM', true); return; }
+  } else {
+    if (hora !== 18 || minuto !== 30) { toast('Los servicios de martes a sábado deben ser a las 6:30 PM', true); return; }
+  }
   const payload = { nombre, caracter: caracter || null, fecha_hora: new Date(fecha).toISOString(), estado: 'programado', responsable_id: resp || null };
   try {
     if (S.editandoServicio) {
@@ -1599,10 +1630,17 @@ renderCaracterChips([]);
 try {
   const perfil = JSON.parse(localStorage.getItem('iglesia_perfil') || '{}');
   const user = JSON.parse(localStorage.getItem('iglesia_user') || '{}');
-  const nombre = perfil.nombre || perfil.nombre_display || user.email || '';
+  const nombre = perfil.nombre || perfil.nombre_display || '';
   const rol = perfil.rol || 'portero';
-  const ROLES = { admin: 'Administrador', pastor: 'Pastor', portero: 'Portero', tesorero: 'Tesorero' };
-  if (nombre) { document.getElementById('user-info').textContent = nombre + ' · ' + (ROLES[rol] || rol); document.getElementById('user-info').style.display = 'block'; }
+  const ROLES = { admin: 'Administrador', pastor: 'Pastor', portero: 'Ujier', tesorero: 'Tesorero' };
+  if (nombre) {
+    const hora = new Date().getHours();
+    const saludo = hora < 12 ? 'Buenos días' : hora < 18 ? 'Buenas tardes' : 'Buenas noches';
+    document.getElementById('user-greeting').textContent = `${saludo} ${nombre}`;
+    const rolLabel = ROLES[rol] || 'Ujier';
+    document.getElementById('user-info').textContent = rolLabel;
+    document.getElementById('user-info').style.display = 'block';
+  }
 } catch {}
 
 let _selectDestino = null;
