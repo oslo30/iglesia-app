@@ -643,7 +643,7 @@ async function cargarUsuarios() {
 function renderUsuarios() {
   const content = document.getElementById('main-content');
   if (!usuarios.length) {
-    content.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>No hay usuarios registrados</p></div>';
+    content.innerHTML = '<div class="empty"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><p>No hay usuarios registrados</p></div>';
     return;
   }
 
@@ -683,7 +683,9 @@ function userCard(u) {
       </div>
     </div>
     <div class="user-actions">
-      <button class="btn-sm" style="flex:1" onclick="abrirModalEditar('${u.id}')">✏️ Editar</button>
+      <button class="btn-sm" style="flex:1" onclick="abrirModalEditar('${u.id}')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+      </button>
     </div>
   </div>`;
 }

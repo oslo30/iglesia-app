@@ -330,6 +330,43 @@
       gap: 4px;
     }
 
+    .service-card-resp {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 8px;
+    }
+
+    .svc-delete-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-xs);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text2);
+      transition: all 0.15s;
+      opacity: 0;
+    }
+
+    .service-card:hover .svc-delete-btn {
+      opacity: 1;
+    }
+
+    .svc-delete-btn:hover {
+      background: var(--red-l);
+      border-color: var(--red);
+      color: var(--red);
+    }
+
     .service-card-footer {
       display: flex;
       align-items: center;
@@ -856,7 +893,15 @@
       <div class="header-top">
         <div class="header-left">
           <div class="header-logo">
-            <img src="/logo.png" alt="Logo">
+            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="40" cy="40" r="38" fill="var(--primary)" opacity="0.08"/>
+              <path d="M40 18C35 18 28 22 24 28C20 34 18 40 20 46C22 52 28 56 34 58C34 60 35 62 37 64L36 68C36 70 38 71 40 71C42 71 44 70 44 68L43 64C45 62 46 60 46 58C52 56 58 52 60 46C62 40 60 34 56 28C52 22 45 18 40 18Z" fill="var(--primary)"/>
+              <path d="M40 26C36 26 30 30 26 36C22 42 20 48 22 54C24 60 30 64 36 66C36 68 37 70 39 72" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="33" cy="36" r="2" fill="white" opacity="0.8"/>
+              <path d="M26 36C24 34 22 30 24 26" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              <path d="M54 36C56 34 58 30 56 26" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              <path d="M40 28C42 30 44 32 45 35" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+            </svg>
           </div>
           <div class="header-info">
             <div class="header-title">Ujieres</div>
@@ -867,7 +912,9 @@
         <div class="header-right">
           <span class="badge-live" id="user-badge">En vivo</span>
           <span id="btn-usuarios" style="display:none">
-            <a href="/usuarios.html" class="btn-exit" style="text-decoration:none">👥</a>
+            <a href="/usuarios.html" class="btn-exit" style="text-decoration:none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </a>
           </span>
           <button class="btn-exit" onclick="logout()">Salir</button>
         </div>
@@ -934,7 +981,9 @@
 
       <div class="counter-card">
         <div class="counter-row">
-          <div class="counter-icon" style="background:var(--primary-l)">🙋</div>
+          <div class="counter-icon" style="background:var(--primary-l)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
           <div class="counter-info">
             <div class="counter-name">Adultos</div>
             <div class="counter-desc">Miembros y visitas adultas</div>
@@ -1247,20 +1296,22 @@ function mockSvcs() {
 function renderServicios(lista) {
   const list = document.getElementById('servicios-list');
   if (!lista.length) {
-    list.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>No hay servicios hoy<br><span style="font-size:12px">Crea uno abajo</span></p></div>';
+    list.innerHTML = '<div class="empty"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg></div><p>No hay servicios hoy<br><span style="font-size:12px">Crea uno abajo</span></p></div>';
     return;
   }
   const COL = { en_curso: 'var(--primary)', finalizado: 'var(--gray)', programado: 'var(--border)', cancelado: 'var(--red)' };
   const LBL = { en_curso: 'En curso', finalizado: 'Finalizado', programado: 'Próximo', cancelado: 'Cancelado' };
-  list.innerHTML = lista.map(s => {
+  const sorted = [...lista].sort((a, b) => new Date(b.fecha_hora) - new Date(a.fecha_hora));
+  list.innerHTML = sorted.map(s => {
     const reg = s.registros_asistencia?.[0];
     const total = reg?.total ?? '—';
     const activo = s.estado === 'en_curso';
     const hora = new Date(s.fecha_hora).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
     const sid = 'svc-' + s.id;
+    const respNombre = s.responsable_nombre || '';
     window['_svc_' + s.id] = s;
     return `<div class="svc-wrap" id="${sid}">
-      <div class="service-card ${activo ? 'highlight' : ''}" onclick="abrirServicio(window['_svc_${s.id}'])">
+      <div class="service-card ${activo ? 'highlight' : ''}" onclick="if(!event.target.closest('.svc-delete-btn')) abrirServicio(window['_svc_${s.id}'])">
         <div class="service-card-header">
           <div class="service-card-title">${s.nombre}</div>
           <div class="service-card-badge">
@@ -1269,14 +1320,13 @@ function renderServicios(lista) {
         </div>
         <div class="service-card-meta">
           <span><span class="status-dot ${s.estado}"></span> ${LBL[s.estado]}</span>
-          <span>⏰ ${hora}</span>
+          <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> ${hora}</span>
           ${s.caracter ? `<span>· ${s.caracter}</span>` : ''}
         </div>
-      </div>
-      <div class="svc-menu" id="menu-${sid}">
-        <div class="svc-menu-item" onclick="abrirServicio(window['_svc_${s.id}'])">✏️ Registrar asistencia</div>
-        <div class="svc-menu-item" onclick="editarServicio(window['_svc_${s.id}'])">⚙️ Editar servicio</div>
-        <div class="svc-menu-item danger" onclick="pedirEliminarServicio('${s.id}','${s.nombre.replace(/'/g,"&#39;")}')">🗑 Eliminar</div>
+        ${respNombre ? `<div class="service-card-resp"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> ${respNombre}</div>` : ''}
+        <button class="svc-delete-btn" onclick="event.stopPropagation(); pedirEliminarServicio('${s.id}','${s.nombre.replace(/'/g,"&#39;")}')" title="Eliminar servicio">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
       </div>
     </div>`;
   }).join('');
@@ -1525,7 +1575,7 @@ function mockHist() {
 
 function renderHistorial(lista) {
   const el = document.getElementById('historial-list');
-  if (!lista.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📊</div><p>Sin registros aún</p></div>'; return; }
+  if (!lista.length) { el.innerHTML = '<div class="empty"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg></div><p>Sin registros aún</p></div>'; return; }
   el.innerHTML = lista.map(r => {
     const svc = r.servicios || {};
     const fecha = svc.fecha_hora ? new Date(svc.fecha_hora).toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' }) : '—';
@@ -1547,10 +1597,14 @@ function renderHistorial(lista) {
         <div class="hist-stat"><div class="hist-stat-val" style="color:var(--amber)">${r.amigos ?? 0}</div><div class="hist-stat-lbl">Amigos</div></div>
       </div>
       ${r.notas ? `<div class="hist-notas">"${r.notas}"</div>` : ''}
-      <div class="hist-meta"><span>👤 ${portero}</span>${caracter ? `<span class="hist-caracter">${caracter}</span>` : ''}</div>
+      <div class="hist-meta"><span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> ${portero}</span>${caracter ? `<span class="hist-caracter">${caracter}</span>` : ''}</div>
       <div class="hist-actions">
-        <button class="btn-sm" style="flex:1" onclick="abrirEditarHist(window['_hist_${r.id}'])">✏️ Editar</button>
-        <button class="btn-sm btn-sm-danger" onclick="pedirEliminar('historial','${r.id}','${r.servicio_id || svc.id || ''}')">🗑</button>
+        <button class="btn-sm" style="flex:1" onclick="abrirEditarHist(window['_hist_${r.id}'])">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
+        </button>
+        <button class="btn-sm btn-sm-danger" onclick="pedirEliminar('historial','${r.id}','${r.servicio_id || svc.id || ''}')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
       </div>
     </div>`;
   }).join('');
