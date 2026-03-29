@@ -745,6 +745,10 @@
     }
     .hist-stat-val { font-size: 20px; font-weight: 700; color: var(--text) }
     .hist-stat-lbl { font-size: 10px; color: var(--text2); margin-top: 3px }
+    .hist-card-compact .hist-stats,
+    .hist-card-compact .hist-notas,
+    .hist-card-compact .hist-actions { display: none }
+    .hist-card-compact { padding-bottom: 14px }
     .hist-notas {
       font-size: 12px;
       color: var(--text2);
@@ -942,6 +946,12 @@
         </div>
       </div>
       <div id="home-1" style="display:none">
+        <div style="padding: 0 0 12px 0">
+          <button class="btn-primary" style="width:100%" onclick="descargarHistorial()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Descargar imagen
+          </button>
+        </div>
         <div id="historial-list"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
       </div>
       <div id="home-2" style="display:none">
@@ -955,12 +965,6 @@
           <canvas id="grafica-asistencia" height="200"></canvas>
         </div>
         <div id="stats-resumen"></div>
-        <div style="padding: 16px">
-          <button class="btn-primary" style="width:100%" onclick="descargarEstadisticas()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Descargar imagen
-          </button>
-        </div>
       </div>
     </div>
 
@@ -1704,6 +1708,26 @@ async function cargarGrafica(periodo) {
         <div class="hist-stat" style="background:var(--surface);border:1px solid var(--border)"><div class="hist-stat-val" style="color:var(--primary)">${Math.max(...tots)}</div><div class="hist-stat-lbl">Máximo</div></div>
         <div class="hist-stat" style="background:var(--surface);border:1px solid var(--border)"><div class="hist-stat-val" style="color:var(--amber)">${Math.min(...tots)}</div><div class="hist-stat-lbl">Mínimo</div></div>
       </div>`;
+  }
+}
+
+async function descargarHistorial() {
+  const list = document.getElementById('historial-list');
+  const cards = list.querySelectorAll('.hist-card');
+  cards.forEach(c => c.classList.add('hist-card-compact'));
+  const container = document.getElementById('home-1');
+  container.scrollIntoView({ behavior: 'instant' });
+  try {
+    const canvas = await html2canvas(container, { useCORS: true, scale: 2, backgroundColor: '#ffffff' });
+    cards.forEach(c => c.classList.remove('hist-card-compact'));
+    const link = document.createElement('a');
+    const fecha = new Date().toLocaleDateString('es-CO');
+    link.download = `historial-ujieres-${fecha}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch {
+    cards.forEach(c => c.classList.remove('hist-card-compact'));
+    toast('No se pudo generar la imagen', true);
   }
 }
 
