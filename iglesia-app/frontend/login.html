@@ -6,68 +6,335 @@
   <title>Acceso — Iglesia</title>
   <link rel="icon" type="image/png" href="/logo.png">
   <style>
-    :root{--primary:#1D9E75;--primary-l:#E1F5EE;--primary-d:#0F6E56;--red:#A32D2D;--red-l:#FCEBEB;--bg:#fff;--bg2:#F8F8F6;--border:rgba(0,0,0,0.1);--text:#1a1a18;--text2:#5F5E5A;--radius:12px;--radius-sm:8px}
-    @media(prefers-color-scheme:dark){:root{--bg:#1a1a18;--bg2:#242422;--border:rgba(255,255,255,0.1);--text:#f0efe8;--text2:#9c9a92;--primary-l:#04342C;--red-l:#501313}}
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg2);color:var(--text);min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px}
-    .card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:32px 28px;width:100%;max-width:380px}
-    .logo{text-align:center;margin-bottom:28px}
-    .logo-icon{width:88px;height:88px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
-    .logo-icon img{width:88px;height:88px;object-fit:contain}
-    .logo-title{font-size:20px;font-weight:700;color:var(--text)}
-    .logo-sub{font-size:13px;color:var(--text2);margin-top:4px}
-    .input-group{margin-bottom:14px}
-    .input-label{font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500;display:block}
-    .input-wrap{position:relative}
-    .input-field{width:100%;padding:12px 14px;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-size:15px;outline:none;transition:border-color .12s}
-    .input-field:focus{border-color:var(--primary)}
-    .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;padding:4px}
-    .btn-primary{width:100%;padding:14px;border-radius:var(--radius-sm);border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px}
-    .btn-primary:active{opacity:.85}
-    .btn-primary:disabled{opacity:.6;cursor:not-allowed}
-    .error-msg{background:var(--red-l);color:var(--red);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;margin-bottom:14px;display:none}
-    .error-msg.show{display:block}
-    .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .version{text-align:center;font-size:11px;color:var(--text2);margin-top:24px}
+    :root {
+      --primary: #1D9E75;
+      --primary-l: #E1F5EE;
+      --primary-d: #0F6E56;
+      --primary-s: rgba(29, 158, 117, 0.12);
+      --red: #A32D2D;
+      --red-l: #FCEBEB;
+      --bg: #F8F9FA;
+      --surface: #FFFFFF;
+      --border: rgba(0, 0, 0, 0.08);
+      --text: #1a1a18;
+      --text2: #6B7280;
+      --text3: #9CA3AF;
+      --radius: 16px;
+      --radius-sm: 12px;
+      --radius-xs: 8px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111110;
+        --surface: #1a1a18;
+        --border: rgba(255,255,255,0.08);
+        --text: #F3F4F6;
+        --text2: #9CA3AF;
+        --text3: #6B7280;
+        --primary-l: #04342C;
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, 'Segoe UI', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      animation: fadeUp 0.4s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-section {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 24px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+      background: var(--surface);
+    }
+
+    .logo-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .welcome-text {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .welcome-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+
+    .welcome-sub {
+      font-size: 15px;
+      color: var(--text2);
+    }
+
+    .card {
+      width: 100%;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text2);
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      color: var(--text3);
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 14px 14px 14px 44px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .input-field::placeholder {
+      color: var(--text3);
+    }
+
+    .input-field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-s);
+    }
+
+    .btn-eye {
+      position: absolute;
+      right: 14px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text3);
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+    }
+
+    .btn-eye:hover {
+      color: var(--text2);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s;
+      box-shadow: 0 4px 12px rgba(29, 158, 117, 0.25);
+      margin-top: 4px;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-d);
+      box-shadow: 0 6px 16px rgba(29, 158, 117, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(29, 158, 117, 0.2);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .error-msg {
+      background: var(--red-l);
+      color: var(--red);
+      border-radius: var(--radius-xs);
+      padding: 12px 14px;
+      font-size: 13px;
+      display: none;
+      border: 1px solid rgba(163, 45, 45, 0.1);
+    }
+
+    .error-msg.show {
+      display: block;
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .links {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .links a {
+      font-size: 13px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 4px 8px;
+      border-radius: var(--radius-xs);
+      transition: background 0.15s;
+    }
+
+    .links a:hover {
+      background: var(--primary-s);
+    }
+
+    .footer {
+      font-size: 11px;
+      color: var(--text3);
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-<div class="card">
-  <div class="logo">
+
+<div class="login-container">
+  <div class="logo-section">
     <div class="logo-icon">
       <img src="/logo.png" alt="Logo Iglesia">
     </div>
-    <div class="logo-title">Sistema Iglesia</div>
-    <div class="logo-sub">Ingresa con tu cuenta</div>
-  </div>
-
-  <div class="error-msg" id="error-msg"></div>
-
-  <div class="input-group">
-    <label class="input-label">Correo electrónico</label>
-    <input type="email" class="input-field" id="email" placeholder="tu@correo.com" autocomplete="email">
-  </div>
-
-  <div class="input-group">
-    <label class="input-label">Contraseña</label>
-    <div class="input-wrap">
-      <input type="password" class="input-field" id="password" placeholder="••••••••" autocomplete="current-password">
-      <button class="eye-btn" tabindex="-1" id="eye-btn">👁</button>
+    <div class="welcome-text">
+      <div class="welcome-title">Bienvenido</div>
+      <div class="welcome-sub">Accede al sistema de asistencia</div>
     </div>
   </div>
 
-  <button class="btn-primary" id="btn-login">
-    <span id="btn-txt">Ingresar</span>
-  </button>
+  <div class="card">
+    <div class="error-msg" id="error-msg"></div>
 
-  <div style="text-align:center;font-size:13px;color:var(--text2);margin-top:14px">
-    <a href="/olvide-password.html" style="color:var(--primary);text-decoration:none;font-weight:500">¿Olvidaste tu contraseña?</a>
+    <div class="form-group">
+      <label class="form-label">Correo electrónico</label>
+      <div class="input-wrap">
+        <span class="input-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        </span>
+        <input type="email" class="input-field" id="email" placeholder="tu@correo.com" autocomplete="email">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <div class="input-wrap">
+        <span class="input-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>
+        <input type="password" class="input-field" id="password" placeholder="••••••••" autocomplete="current-password">
+        <button class="btn-eye" tabindex="-1" id="eye-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-login">
+      <span id="btn-txt">Ingresar</span>
+    </button>
+
+    <div class="links">
+      <a href="/olvide-password.html">¿Olvidaste tu contraseña?</a>
+    </div>
   </div>
-  <div style="text-align:center;font-size:13px;color:var(--text2);margin-top:10px">
-    ¿No tienes cuenta? <a href="/registro.html" style="color:var(--primary);text-decoration:none;font-weight:500">Regístrate</a>
-  </div>
-  <div class="version">Sistema de Gestión Iglesia · v1.0</div>
+
+  <div class="footer">Sistema de Gestión Iglesia · v1.0</div>
 </div>
 
 <script>
@@ -76,7 +343,14 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 function togglePwd() {
   const inp = document.getElementById('password');
-  inp.type = inp.type === 'password' ? 'text' : 'password';
+  const eye = document.getElementById('eye-btn');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    eye.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>';
+  } else {
+    inp.type = 'password';
+    eye.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+  }
 }
 
 function setLoading(on) {
@@ -91,16 +365,17 @@ function showError(msg) {
   el.textContent = msg;
   el.classList.add('show');
 }
+
 function hideError() {
   document.getElementById('error-msg').classList.remove('show');
 }
 
 async function login() {
   hideError();
-  const email    = document.getElementById('email').value.trim();
+  const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
 
-  if (!email)    { showError('Ingresa tu correo electrónico'); return; }
+  if (!email) { showError('Ingresa tu correo electrónico'); return; }
   if (!password) { showError('Ingresa tu contraseña'); return; }
 
   setLoading(true);
@@ -118,9 +393,9 @@ async function login() {
       return;
     }
 
-    localStorage.setItem('iglesia_token',   data.access_token);
+    localStorage.setItem('iglesia_token', data.access_token);
     localStorage.setItem('iglesia_refresh', data.refresh_token);
-    localStorage.setItem('iglesia_user',    JSON.stringify(data.user));
+    localStorage.setItem('iglesia_user', JSON.stringify(data.user));
 
     const perfil = await fetch('/api/auth/perfil', {
       headers: { 'Authorization': 'Bearer ' + data.access_token }
@@ -132,9 +407,9 @@ async function login() {
 
     const rol = perfilData.data?.rol || 'portero';
     const destinos = {
-      admin:    '/porteria.html',
-      pastor:   '/porteria.html',
-      portero:  '/porteria.html',
+      admin: '/porteria.html',
+      pastor: '/porteria.html',
+      portero: '/porteria.html',
       tesorero: '/porteria.html'
     };
     window.location.href = destinos[rol] || '/porteria.html';
@@ -154,7 +429,6 @@ document.getElementById('password').addEventListener('keydown', e => {
   if (e.key === 'Enter') login();
 });
 
-// Si ya hay sesión válida, redirigir directamente
 const token = localStorage.getItem('iglesia_token');
 if (token) {
   try {
