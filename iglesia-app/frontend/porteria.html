@@ -824,23 +824,24 @@
     .toast {
       position: fixed;
       bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
+      left: 12px;
+      right: 12px;
       background: var(--text);
       color: var(--bg);
-      padding: 12px 24px;
-      border-radius: var(--radius-full);
-      font-size: 14px;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
       font-weight: 500;
       z-index: 999;
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: opacity 0.25s, transform 0.25s;
       pointer-events: none;
       white-space: normal;
       text-align: center;
-      max-width: calc(100vw - 32px);
       line-height: 1.4;
+      opacity: 0;
+      transform: translateY(10px);
     }
-    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.show { opacity: 1; transform: translateY(0); }
     .toast.error { background: var(--red) }
 
     /* ── SUCCESS ── */
@@ -1247,7 +1248,7 @@ function toast(msg, isError = false) {
   el.textContent = msg;
   el.className = 'toast' + (isError ? ' error' : '');
   el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2800);
+  setTimeout(() => el.classList.remove('show'), 5000);
 }
 
 function abrirModal(id) { document.getElementById(id).classList.add('show'); }
