@@ -5,10 +5,23 @@ import { ok, created } from '../../../utils/response.js';
 
 const router = Router();
 
+// columnas asistencia (con fallback si no existen las nuevas)
+const COLS_NEW = 'caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, vm, vf, vm_adolescentes, vf_adolescentes, vm_ninos, vf_ninas, total, notas, ujier_id';
+const COLS_FALLBACK = 'caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, total, notas, ujier_id';
+
+async function selectCols(supabase) {
+  try {
+    const { error } = await supabase.from('registros_asistencia').select('vm').limit(1);
+    if (!error) return COLS_NEW;
+  } catch {}
+  return COLS_FALLBACK;
+}
+
 async function porId(id) {
+  const cols = await selectCols(supabase);
   const { data, error } = await supabase
     .from('servicios')
-    .select('*, registros_asistencia(caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, vm, vf, vm_adolescentes, vf_adolescentes, vm_ninos, vf_ninas, total, notas, ujier_id)')
+    .select(`*, registros_asistencia(${cols})`)
     .eq('id', id)
     .single();
   if (error) throw new AppError('Servicio no encontrado', 404);
@@ -17,14 +30,14 @@ async function porId(id) {
 
 router.get('/hoy', async (req, res, next) => {
   try {
+    const cols = await selectCols(supabase);
     const fecha = new Date().toISOString().split('T')[0];
-    let query = supabase
+    const { data, error } = await supabase
       .from('servicios')
-      .select('*, registros_asistencia(caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, vm, vf, vm_adolescentes, vf_adolescentes, vm_ninos, vf_ninas, total, notas, ujier_id)')
+      .select(`*, registros_asistencia(${cols})`)
       .gte('fecha_hora', fecha + 'T00:00:00')
       .lte('fecha_hora', fecha + 'T23:59:59')
       .order('fecha_hora', { ascending: true });
-    const { data, error } = await query;
     if (error) throw new AppError(error.message, 500);
     ok(res, data || []);
   } catch (e) { next(e); }
@@ -32,10 +45,11 @@ router.get('/hoy', async (req, res, next) => {
 
 router.get('/', async (req, res, next) => {
   try {
+    const cols = await selectCols(supabase);
     const { estado, fecha, limit = 20, offset = 0 } = req.query;
     let query = supabase
       .from('servicios')
-      .select('*, registros_asistencia(caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, vm, vf, vm_adolescentes, vf_adolescentes, vm_ninos, vf_ninas, total, notas, ujier_id)', { count: 'exact' })
+      .select(`*, registros_asistencia(${cols})`, { count: 'exact' })
       .order('fecha_hora', { ascending: false })
       .range(Number(offset), Number(offset) + Number(limit) - 1);
     if (estado) query = query.eq('estado', estado);

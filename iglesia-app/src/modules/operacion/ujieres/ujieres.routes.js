@@ -10,7 +10,6 @@ router.get('/', async (req, res, next) => {
     const { data, error } = await supabase
       .from('ujieres')
       .select('id, nombre_completo')
-      .eq('estado', 'activo')
       .order('nombre_completo');
     if (error) throw error;
     ok(res, data || []);
