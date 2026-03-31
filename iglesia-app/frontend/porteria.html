@@ -506,7 +506,7 @@
       width: 56px;
       height: 56px;
       border-radius: 50%;
-      background: var(--green);
+      background: var(--primary);
       color: #fff;
       border: none;
       font-size: 22px;
@@ -514,7 +514,7 @@
       display: none;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 6px 20px rgba(29, 158, 117, 0.35);
+      box-shadow: 0 6px 20px rgba(0, 81, 154, 0.35);
       transition: all 0.2s;
       z-index: 50;
     }
@@ -831,8 +831,8 @@
     }
     .hist-stats {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
       margin-bottom: 12px;
     }
     .hist-stat {
@@ -2037,12 +2037,11 @@ function renderHistorial(lista) {
         <span class="hist-total-badge">${r.total ?? 0}</span>
       </div>
       <div class="hist-stats">
-        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--primary)">${r.caballeros ?? 0}</div><div class="hist-stat-lbl">Cab.</div></div>
-        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--pink)">${r.damas ?? 0}</div><div class="hist-stat-lbl">Dam.</div></div>
-        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--purple)">${r.adol_varones ?? 0}</div><div class="hist-stat-lbl">Adol.V</div></div>
-        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--purple)">${r.adol_damas ?? 0}</div><div class="hist-stat-lbl">Adol.M</div></div>
-        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--blue)">${r.ninos_varones ?? 0}</div><div class="hist-stat-lbl">Niños.V</div></div>
-        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--blue)">${r.ninos_damas ?? 0}</div><div class="hist-stat-lbl">Niñas.M</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--primary)">${r.caballeros ?? 0}</div><div class="hist-stat-lbl">Caballeros</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--pink)">${r.damas ?? 0}</div><div class="hist-stat-lbl">Damas</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--purple)">${(r.adol_varones ?? 0) + (r.adol_damas ?? 0)}</div><div class="hist-stat-lbl">Adolescentes</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--blue)">${(r.ninos_varones ?? 0) + (r.ninos_damas ?? 0)}</div><div class="hist-stat-lbl">Niños</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--green)">${(r.vm ?? 0) + (r.vf ?? 0) + (r.vm_adolescentes ?? 0) + (r.vf_adolescentes ?? 0) + (r.vm_ninos ?? 0) + (r.vf_ninas ?? 0)}</div><div class="hist-stat-lbl">Visitas</div></div>
       </div>
       ${r.notas ? `<div class="hist-notas">"${r.notas}"</div>` : ''}
       <div class="hist-meta"><span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> ${portero}</span>${caracter ? `<span class="hist-caracter">${caracter}</span>` : ''}</div>
