@@ -706,6 +706,37 @@
       border-bottom: 1px solid var(--border);
     }
     .sum-row:last-child { border: none; font-weight: 700; color: var(--text); font-size: 16px }
+    .sum-header {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text3);
+      font-weight: 600;
+      margin-top: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sum-header:first-child { margin-top: 0; }
+    .sum-total { color: var(--text); font-weight: 700; font-size: 15px; }
+    .grand-total { color: var(--primary); font-weight: 800; font-size: 17px; border-top: 2px solid var(--border); margin-top: 4px; padding-top: 8px; }
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0 10px;
+      color: var(--text3);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+    .section-divider::before, .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .feligreses-summary { background: var(--gray-l); border-radius: var(--radius-sm); padding: 16px; margin: 14px 0; }
 
     /* ── MODAL ── */
     .modal-overlay {
@@ -1104,14 +1135,109 @@
         </div>
       </div>
 
-      <div class="summary">
+      <div class="summary feligreses-summary">
+        <div class="sum-header">Feligreses</div>
         <div class="sum-row"><span>Caballeros</span><span id="s-caballeros">0</span></div>
         <div class="sum-row"><span>Damas</span><span id="s-damas">0</span></div>
-        <div class="sum-row"><span>Adol. Varones</span><span id="s-adol_varones">0</span></div>
-        <div class="sum-row"><span>Adol. Damas</span><span id="s-adol_damas">0</span></div>
-        <div class="sum-row"><span>Niños Varones</span><span id="s-ninos_varones">0</span></div>
-        <div class="sum-row"><span>Niñas Damas</span><span id="s-ninos_damas">0</span></div>
-        <div class="sum-row"><span>Total</span><span id="s-total">0</span></div>
+        <div class="sum-row"><span>Adol. V</span><span id="s-adol_varones">0</span></div>
+        <div class="sum-row"><span>Adol. M</span><span id="s-adol_damas">0</span></div>
+        <div class="sum-row"><span>Niños V</span><span id="s-ninos_varones">0</span></div>
+        <div class="sum-row"><span>Niñas M</span><span id="s-ninos_damas">0</span></div>
+        <div class="sum-row sum-total"><span>Subtotal</span><span id="s-feligreses">0</span></div>
+      </div>
+
+      <div class="section-divider">
+        <span>Visitantes</span>
+      </div>
+
+      <div class="counter-card">
+        <div class="counter-row">
+          <div class="counter-icon" style="background:var(--green-l)">👨</div>
+          <div class="counter-info">
+            <div class="counter-name">V.M.</div>
+            <div class="counter-desc">Visitante Masculino</div>
+          </div>
+          <div class="counter-ctrl">
+            <input type="number" class="cnt-input" id="v-vm" value="0" min="0" oninput="actualizarAsistenciaDirecta('vm')">
+          </div>
+        </div>
+      </div>
+
+      <div class="counter-card">
+        <div class="counter-row">
+          <div class="counter-icon" style="background:var(--green-l)">👩</div>
+          <div class="counter-info">
+            <div class="counter-name">V.F.</div>
+            <div class="counter-desc">Visitante Femenino</div>
+          </div>
+          <div class="counter-ctrl">
+            <input type="number" class="cnt-input" id="v-vf" value="0" min="0" oninput="actualizarAsistenciaDirecta('vf')">
+          </div>
+        </div>
+      </div>
+
+      <div class="counter-card">
+        <div class="counter-row">
+          <div class="counter-icon" style="background:var(--orange-l)">🧑</div>
+          <div class="counter-info">
+            <div class="counter-name">V.M. Adol.</div>
+            <div class="counter-desc">Visitante Masculino Adolescente</div>
+          </div>
+          <div class="counter-ctrl">
+            <input type="number" class="cnt-input" id="v-vm_adolescentes" value="0" min="0" oninput="actualizarAsistenciaDirecta('vm_adolescentes')">
+          </div>
+        </div>
+      </div>
+
+      <div class="counter-card">
+        <div class="counter-row">
+          <div class="counter-icon" style="background:var(--orange-l)">👧</div>
+          <div class="counter-info">
+            <div class="counter-name">V.F. Adol.</div>
+            <div class="counter-desc">Visitante Femenino Adolescente</div>
+          </div>
+          <div class="counter-ctrl">
+            <input type="number" class="cnt-input" id="v-vf_adolescentes" value="0" min="0" oninput="actualizarAsistenciaDirecta('vf_adolescentes')">
+          </div>
+        </div>
+      </div>
+
+      <div class="counter-card">
+        <div class="counter-row">
+          <div class="counter-icon" style="background:var(--teal-l)">👦</div>
+          <div class="counter-info">
+            <div class="counter-name">V.M. Niños</div>
+            <div class="counter-desc">Visitante Masculino Niño</div>
+          </div>
+          <div class="counter-ctrl">
+            <input type="number" class="cnt-input" id="v-vm_ninos" value="0" min="0" oninput="actualizarAsistenciaDirecta('vm_ninos')">
+          </div>
+        </div>
+      </div>
+
+      <div class="counter-card">
+        <div class="counter-row">
+          <div class="counter-icon" style="background:var(--teal-l)">👧‍♀️</div>
+          <div class="counter-info">
+            <div class="counter-name">V.F. Niñas</div>
+            <div class="counter-desc">Visitante Femenino Niña</div>
+          </div>
+          <div class="counter-ctrl">
+            <input type="number" class="cnt-input" id="v-vf_ninas" value="0" min="0" oninput="actualizarAsistenciaDirecta('vf_ninas')">
+          </div>
+        </div>
+      </div>
+
+      <div class="summary">
+        <div class="sum-header">Visitantes</div>
+        <div class="sum-row"><span>V.M.</span><span id="s-vm">0</span></div>
+        <div class="sum-row"><span>V.F.</span><span id="s-vf">0</span></div>
+        <div class="sum-row"><span>V.M. Adol.</span><span id="s-vm_adolescentes">0</span></div>
+        <div class="sum-row"><span>V.F. Adol.</span><span id="s-vf_adolescentes">0</span></div>
+        <div class="sum-row"><span>V.M. Niños</span><span id="s-vm_ninos">0</span></div>
+        <div class="sum-row"><span>V.F. Niñas</span><span id="s-vf_ninas">0</span></div>
+        <div class="sum-row sum-total"><span>Subtotal</span><span id="s-visitantes">0</span></div>
+        <div class="sum-row grand-total"><span>TOTAL</span><span id="s-total">0</span></div>
       </div>
 
       <div id="lock-asistencia-msg" style="display:none;background:var(--amber-l);color:var(--amber);padding:10px 14px;border-radius:8px;font-size:13px;text-align:center;margin-bottom:12px">
@@ -1462,7 +1588,7 @@ function toggleMenu(sid) {
 
 function abrirServicio(s) {
   S.servicioActivo = s;
-  S.asistencia = { caballeros: 0, damas: 0, adol_varones: 0, adol_damas: 0, ninos_varones: 0, ninos_damas: 0 };
+  S.asistencia = { caballeros: 0, damas: 0, adol_varones: 0, adol_damas: 0, ninos_varones: 0, ninos_damas: 0, vm: 0, vf: 0, vm_adolescentes: 0, vf_adolescentes: 0, vm_ninos: 0, vf_ninas: 0 };
   S.registroId = null;
   const reg = s.registros_asistencia?.[0];
   if (reg) {
@@ -1472,6 +1598,12 @@ function abrirServicio(s) {
     S.asistencia.adol_damas = reg.adol_damas || 0;
     S.asistencia.ninos_varones = reg.ninos_varones || 0;
     S.asistencia.ninos_damas = reg.ninos_damas || 0;
+    S.asistencia.vm = reg.vm || 0;
+    S.asistencia.vf = reg.vf || 0;
+    S.asistencia.vm_adolescentes = reg.vm_adolescentes || 0;
+    S.asistencia.vf_adolescentes = reg.vf_adolescentes || 0;
+    S.asistencia.vm_ninos = reg.vm_ninos || 0;
+    S.asistencia.vf_ninas = reg.vf_ninas || 0;
     S.registroId = reg.id || null;
   }
   document.getElementById('reg-titulo').textContent = s.nombre;
@@ -1481,7 +1613,7 @@ function abrirServicio(s) {
   badge.textContent = s.estado === 'en_curso' ? '● Activo' : s.estado === 'finalizado' ? 'Finalizado' : 'Próximo';
   badge.className = s.estado === 'en_curso' ? 'badge-live' : 'badge-fin';
   document.getElementById('btn-eliminar-reg').style.display = S.registroId ? 'block' : 'none';
-  if (reg?.registrado_por) document.getElementById('reg-responsable').value = reg.registrado_por;
+  if (reg?.ujier_id) document.getElementById('reg-responsable').value = reg.ujier_id;
   actualizarContadores();
   bloquearInputsPorFecha(s);
   document.querySelectorAll('.svc-menu.open').forEach(m => m.classList.remove('open'));
@@ -1551,32 +1683,65 @@ function bloquearInputsPorFecha(servicio) {
 }
 
 function actualizarContadores() {
-  const keys = ['caballeros', 'damas', 'adol_varones', 'adol_damas', 'ninos_varones', 'ninos_damas'];
-  keys.forEach(k => {
+  const feligreses = ['caballeros', 'damas', 'adol_varones', 'adol_damas', 'ninos_varones', 'ninos_damas'];
+  const visitantes = ['vm', 'vf', 'vm_adolescentes', 'vf_adolescentes', 'vm_ninos', 'vf_ninas'];
+  feligreses.forEach(k => {
     const el = document.getElementById('v-' + k);
     const sumEl = document.getElementById('s-' + k);
     if (el) el.value = S.asistencia[k];
     if (sumEl) sumEl.textContent = S.asistencia[k];
   });
-  const total = keys.reduce((sum, k) => sum + (S.asistencia[k] || 0), 0);
-  document.getElementById('s-total').textContent = total;
+  visitantes.forEach(k => {
+    const el = document.getElementById('v-' + k);
+    const sumEl = document.getElementById('s-' + k);
+    if (el) el.value = S.asistencia[k];
+    if (sumEl) sumEl.textContent = S.asistencia[k];
+  });
+  const subF = feligreses.reduce((sum, k) => sum + (S.asistencia[k] || 0), 0);
+  const subV = visitantes.reduce((sum, k) => sum + (S.asistencia[k] || 0), 0);
+  document.getElementById('s-feligreses').textContent = subF;
+  document.getElementById('s-visitantes').textContent = subV;
+  document.getElementById('s-total').textContent = subF + subV;
 }
 
 async function guardarAsistencia() {
-  const { caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas } = S.asistencia;
+  const { caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, vm, vf, vm_adolescentes, vf_adolescentes, vm_ninos, vf_ninas } = S.asistencia;
   const notas = document.getElementById('notas-reg').value;
-  const resp = document.getElementById('reg-responsable').value;
-  const payload = { caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, notas: notas || undefined, registradoPor: resp || undefined };
+  const ujier_id = document.getElementById('reg-responsable').value;
+  const payload = {
+    feligreses: { caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas },
+    visitantes: { vm, vf, vm_adolescentes, vf_adolescentes, vm_ninos, vf_ninas },
+    notas: notas || undefined,
+    ujier_id: ujier_id || undefined
+  };
   try {
     await api('POST', `/asistencia/${S.servicioActivo.id}`, payload);
     toast('Registro guardado');
   } catch { toast('Guardado localmente'); }
-  const total = caballeros + damas + adol_varones + adol_damas + ninos_varones + ninos_damas;
+  const subF = caballeros + damas + adol_varones + adol_damas + ninos_varones + ninos_damas;
+  const subV = vm + vf + vm_adolescentes + vf_adolescentes + vm_ninos + vf_ninas;
   document.getElementById('confirm-titulo').textContent = 'Registro guardado';
   document.getElementById('confirm-sub').textContent = S.servicioActivo.nombre;
   document.getElementById('confirm-summary').innerHTML =
-    `<div class="sum-row"><span>Caballeros</span><span>${caballeros}</span></div><div class="sum-row"><span>Damas</span><span>${damas}</span></div><div class="sum-row"><span>Adol. Varones</span><span>${adol_varones}</span></div><div class="sum-row"><span>Adol. Damas</span><span>${adol_damas}</span></div><div class="sum-row"><span>Niños Varones</span><span>${ninos_varones}</span></div><div class="sum-row"><span>Niñas Damas</span><span>${ninos_damas}</span></div><div class="sum-row"><span>Total</span><span>${total}</span></div>`;
+    `<div class="sum-header">Feligreses</div>
+     <div class="sum-row"><span>Caballeros</span><span>${caballeros}</span></div>
+     <div class="sum-row"><span>Damas</span><span>${damas}</span></div>
+     <div class="sum-row"><span>Adol. V</span><span>${adol_varones}</span></div>
+     <div class="sum-row"><span>Adol. M</span><span>${adol_damas}</span></div>
+     <div class="sum-row"><span>Niños V</span><span>${ninos_varones}</span></div>
+     <div class="sum-row"><span>Niñas M</span><span>${ninos_damas}</span></div>
+     <div class="sum-row sum-total"><span>Subtotal</span><span>${subF}</span></div>
+     <div class="sum-header">Visitantes</div>
+     <div class="sum-row"><span>V.M.</span><span>${vm}</span></div>
+     <div class="sum-row"><span>V.F.</span><span>${vf}</span></div>
+     <div class="sum-row"><span>V.M. Adol.</span><span>${vm_adolescentes}</span></div>
+     <div class="sum-row"><span>V.F. Adol.</span><span>${vf_adolescentes}</span></div>
+     <div class="sum-row"><span>V.M. Niños</span><span>${vm_ninos}</span></div>
+     <div class="sum-row"><span>V.F. Niñas</span><span>${vf_ninas}</span></div>
+     <div class="sum-row sum-total"><span>Subtotal</span><span>${subV}</span></div>
+     <div class="sum-row grand-total"><span>TOTAL</span><span>${subF + subV}</span></div>`;
   goTo('p-confirm');
+  setTimeout(() => cargarServicios(), 500);
 }
 
 function pedirEliminar(tipo, id, extra) {
@@ -1609,7 +1774,7 @@ async function ejecutarEliminar() {
   cerrarModal('modal-confirmar');
   if (S.eliminarTipo === 'registro') {
     try { await api('DELETE', `/asistencia/${S.servicioActivo.id}`); } catch {}
-    S.asistencia = { caballeros: 0, damas: 0, adol_varones: 0, adol_damas: 0, ninos_varones: 0, ninos_damas: 0 };
+    S.asistencia = { caballeros: 0, damas: 0, adol_varones: 0, adol_damas: 0, ninos_varones: 0, ninos_damas: 0, vm: 0, vf: 0, vm_adolescentes: 0, vf_adolescentes: 0, vm_ninos: 0, vf_ninas: 0 };
     S.registroId = null;
     document.getElementById('btn-eliminar-reg').style.display = 'none';
     document.getElementById('notas-reg').value = '';
@@ -1844,9 +2009,14 @@ async function guardarEdicion() {
   const ninos_varones = parseInt(document.getElementById('edit-ninos_varones').value) || 0;
   const ninos_damas = parseInt(document.getElementById('edit-ninos_damas').value) || 0;
   const notas = document.getElementById('edit-notas').value;
-  try { if (S.editandoSvcId) await api('POST', `/asistencia/${S.editandoSvcId}`, { caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, notas: notas || undefined }); } catch {}
+  const payload = {
+    feligreses: { caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas },
+    visitantes: { vm: 0, vf: 0, vm_adolescentes: 0, vf_adolescentes: 0, vm_ninos: 0, vf_ninas: 0 },
+    notas: notas || undefined
+  };
+  try { if (S.editandoSvcId) await api('POST', `/asistencia/${S.editandoSvcId}`, payload); } catch {}
   const idx = S.historialData.findIndex(r => r.id === S.editandoHistId);
-  if (idx !== -1) S.historialData[idx] = { ...S.historialData[idx], caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, notas, total: caballeros + damas + adol_varones + adol_damas + ninos_varones + ninos_damas };
+  if (idx !== -1) S.historialData[idx] = { ...S.historialData[idx], caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, total: caballeros + damas + adol_varones + adol_damas + ninos_varones + ninos_damas };
   renderHistorial(S.historialData);
   cerrarModal('modal-editar');
   toast('Registro actualizado');
