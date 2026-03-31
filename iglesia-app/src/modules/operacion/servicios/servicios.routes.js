@@ -8,7 +8,7 @@ const router = Router();
 async function porId(id) {
   const { data, error } = await supabase
     .from('servicios')
-    .select('*, registros_asistencia(adultos, ninos, amigos, total, notas, registrado_por)')
+    .select('*, registros_asistencia(caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, vm, vf, vm_adolescentes, vf_adolescentes, vm_ninos, vf_ninas, total, notas, ujier_id)')
     .eq('id', id)
     .single();
   if (error) throw new AppError('Servicio no encontrado', 404);
@@ -20,7 +20,7 @@ router.get('/hoy', async (req, res, next) => {
     const fecha = new Date().toISOString().split('T')[0];
     let query = supabase
       .from('servicios')
-      .select('*, registros_asistencia(adultos, ninos, amigos, total, notas, registrado_por)')
+      .select('*, registros_asistencia(caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, vm, vf, vm_adolescentes, vf_adolescentes, vm_ninos, vf_ninas, total, notas, ujier_id)')
       .gte('fecha_hora', fecha + 'T00:00:00')
       .lte('fecha_hora', fecha + 'T23:59:59')
       .order('fecha_hora', { ascending: true });
@@ -35,7 +35,7 @@ router.get('/', async (req, res, next) => {
     const { estado, fecha, limit = 20, offset = 0 } = req.query;
     let query = supabase
       .from('servicios')
-      .select('*, registros_asistencia(adultos, ninos, amigos, total)', { count: 'exact' })
+      .select('*, registros_asistencia(caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, vm, vf, vm_adolescentes, vf_adolescentes, vm_ninos, vf_ninas, total, notas, ujier_id)', { count: 'exact' })
       .order('fecha_hora', { ascending: false })
       .range(Number(offset), Number(offset) + Number(limit) - 1);
     if (estado) query = query.eq('estado', estado);

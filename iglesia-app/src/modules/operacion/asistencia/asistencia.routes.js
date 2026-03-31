@@ -9,27 +9,58 @@ const router = Router();
 async function porServicio(servicioId) {
   const { data } = await supabase
     .from('registros_asistencia')
-    .select('*, miembros(id, nombre, apellido)')
+    .select('*')
     .eq('servicio_id', servicioId)
     .maybeSingle();
   return data;
 }
 
-async function registrar({ servicioId, adultos, ninos, amigos, notas, registradoPor }) {
+// Total de todas las categorías
+function calcTotal(feligreses, visitantes) {
+  const f = feligreses ?? {};
+  const v = visitantes ?? {};
+  return (
+    (f.caballeros || 0) + (f.damas || 0) +
+    (f.adol_varones || 0) + (f.adol_damas || 0) +
+    (f.ninos_varones || 0) + (f.ninos_damas || 0) +
+    (v.vm || 0) + (v.vf || 0) +
+    (v.vm_adolescentes || 0) + (v.vf_adolescentes || 0) +
+    (v.vm_ninos || 0) + (v.vf_ninas || 0)
+  );
+}
+
+async function registrar({ servicioId, feligreses, visitantes, notas, ujierId }) {
   const { data: svc } = await supabase
     .from('servicios').select('id, estado').eq('id', servicioId).single();
   if (!svc)                    throw new AppError('Servicio no encontrado', 404);
   if (svc.estado === 'cancelado') throw new AppError('Servicio cancelado', 400);
 
+  const f = feligreses ?? {};
+  const v = visitantes ?? {};
+  const total = calcTotal(feligreses, visitantes);
+
   const { data, error } = await supabase
     .from('registros_asistencia')
     .upsert({
-      servicio_id:    servicioId,
-      adultos:        adultos  ?? 0,
-      ninos:          ninos    ?? 0,
-      amigos:         amigos   ?? 0,
-      notas:          notas    ?? null,
-      registrado_por: registradoPor || null,
+      servicio_id:       servicioId,
+      // Feligreses
+      caballeros:      f.caballeros    ?? 0,
+      damas:           f.damas         ?? 0,
+      adol_varones:    f.adol_varones  ?? 0,
+      adol_damas:      f.adol_damas    ?? 0,
+      ninos_varones:   f.ninos_varones ?? 0,
+      ninos_damas:     f.ninos_damas   ?? 0,
+      // Visitantes
+      vm:              v.vm            ?? 0,
+      vf:              v.vf            ?? 0,
+      vm_adolescentes: v.vm_adolescentes ?? 0,
+      vf_adolescentes: v.vf_adolescentes ?? 0,
+      vm_ninos:        v.vm_ninos      ?? 0,
+      vf_ninas:        v.vf_ninas      ?? 0,
+      // Meta
+      total,
+      notas:           notas    ?? null,
+      ujier_id:        ujierId ?? null,
     }, { onConflict: 'servicio_id' })
     .select()
     .single();
@@ -48,10 +79,11 @@ router.get('/historial', async (req, res, next) => {
     let query = supabase
       .from('registros_asistencia')
       .select(`
-        id, servicio_id, adultos, ninos, amigos, total, notas, created_at,
-        registrado_por,
-        servicios ( id, nombre, fecha_hora, tipo, caracter ),
-        miembros  ( id, nombre, apellido )
+        id, servicio_id,
+        caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas,
+        vm, vf, vm_adolescentes, vf_adolescentes, vm_ninos, vf_ninas,
+        total, notas, created_at, ujier_id,
+        servicios ( id, nombre, fecha_hora, tipo, caracter )
       `, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(Number(offset), Number(offset) + Number(limit) - 1);
@@ -61,16 +93,7 @@ router.get('/historial', async (req, res, next) => {
 
     const { data, error, count } = await query;
     if (error) throw new AppError(error.message, 500);
-
-    // Normalizar: agregar registrado_por_nombre desde el JOIN
-    const registros = (data || []).map(r => ({
-      ...r,
-      registrado_por_nombre: r.miembros
-        ? r.miembros.nombre + ' ' + r.miembros.apellido
-        : null
-    }));
-
-    ok(res, registros, { total: count });
+    ok(res, data || [], { total: count });
   } catch (e) { next(e); }
 });
 
@@ -79,7 +102,7 @@ router.get('/estadisticas', async (req, res, next) => {
   try {
     const { data: ultimo } = await supabase
       .from('registros_asistencia')
-      .select('*, servicios(nombre, fecha_hora), miembros(nombre, apellido)')
+      .select('*, servicios(nombre, fecha_hora)')
       .order('created_at', { ascending: false })
       .limit(1).maybeSingle();
 
@@ -95,12 +118,7 @@ router.get('/estadisticas', async (req, res, next) => {
       : 0;
 
     ok(res, {
-      ultimoServicio:   ultimo ? {
-        ...ultimo,
-        registrado_por_nombre: ultimo.miembros
-          ? ultimo.miembros.nombre + ' ' + ultimo.miembros.apellido
-          : null
-      } : null,
+      ultimoServicio:   ultimo || null,
       promedio4semanas: promedio,
       tendencia: (ultimo?.total || 0) > promedio ? 'subiendo' : 'bajando'
     });
@@ -116,10 +134,12 @@ router.get('/:servicioId', async (req, res, next) => {
 // POST /api/asistencia/:servicioId  (crear o actualizar)
 router.post('/:servicioId', async (req, res, next) => {
   try {
-    const { adultos = 0, ninos = 0, amigos = 0, notas, registradoPor } = req.body;
+    const { feligreses, visitantes, notas, ujier_id } = req.body;
     const data = await registrar({
       servicioId: req.params.servicioId,
-      adultos, ninos, amigos, notas, registradoPor
+      feligreses: feligreses ?? {},
+      visitantes: visitantes ?? {},
+      notas, ujierId: ujier_id
     });
     ok(res, data);
   } catch (e) { next(e); }
