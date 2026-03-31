@@ -1046,27 +1046,14 @@
         <div id="historial-list"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
       </div>
       <div id="home-2" style="display:none">
-        <div class="stats-tabs">
-          <button class="chip active" onclick="verEstadistica('fieles',this)">Feligreses</button>
-          <button class="chip" onclick="verEstadistica('visitantes',this)">Visitantes</button>
-        </div>
-        <div class="chart-wrap" id="chart-feligreses">
-          <div class="chart-title">Asistencia Feligreses</div>
+        <div class="chart-wrap" id="chart-wrap">
+          <div class="chart-title">Asistencia</div>
           <div class="chart-filter">
-            <div class="chip active" onclick="filtroGrafica('semana',this,'fieles')">Esta semana</div>
-            <div class="chip" onclick="filtroGrafica('mes',this,'fieles')">Este mes</div>
-            <div class="chip" onclick="filtroGrafica('todo',this,'fieles')">Todo</div>
+            <div class="chip active" onclick="filtroGrafica('semana',this)">Esta semana</div>
+            <div class="chip" onclick="filtroGrafica('mes',this)">Este mes</div>
+            <div class="chip" onclick="filtroGrafica('todo',this)">Todo</div>
           </div>
-          <canvas id="grafica-feligreses" height="180"></canvas>
-        </div>
-        <div class="chart-wrap" id="chart-visitantes" style="display:none">
-          <div class="chart-title">Asistencia Visitantes</div>
-          <div class="chart-filter">
-            <div class="chip active" onclick="filtroGrafica('semana',this,'visitantes')">Esta semana</div>
-            <div class="chip" onclick="filtroGrafica('mes',this,'visitantes')">Este mes</div>
-            <div class="chip" onclick="filtroGrafica('todo',this,'visitantes')">Todo</div>
-          </div>
-          <canvas id="grafica-visitantes" height="180"></canvas>
+          <canvas id="grafica-unica" height="180"></canvas>
         </div>
         <div id="stats-resumen"></div>
       </div>
@@ -2091,21 +2078,17 @@ async function guardarEdicion() {
   toast('Registro actualizado');
 }
 
-function verEstadistica(tipo) {
-  document.getElementById('chart-feligreses').style.display = tipo === 'fieles' ? 'block' : 'none';
-  document.getElementById('chart-visitantes').style.display = tipo === 'visitantes' ? 'block' : 'none';
-  cargarGrafica('semana', tipo);
-}
+// verEstadistica removido — un solo gráfico
 
-function filtroGrafica(p, el, tipo) {
+function filtroGrafica(p, el) {
   if (el) {
     el.closest('.chart-filter').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
   }
-  cargarGrafica(p, tipo);
+  cargarGrafica(p);
 }
 
-async function cargarGrafica(periodo, tipo = 'fieles') {
+async function cargarGrafica(periodo) {
   let desde = '';
   if (periodo === 'semana') { const d = new Date(); d.setDate(d.getDate() - 7); desde = d.toISOString().split('T')[0]; }
   else if (periodo === 'mes') { const d = new Date(); d.setMonth(d.getMonth() - 1); desde = d.toISOString().split('T')[0]; }
@@ -2116,32 +2099,20 @@ async function cargarGrafica(periodo, tipo = 'fieles') {
   const rev = [...regs].reverse();
   const labels = rev.map(r => { const fh = r.servicios?.fecha_hora; return fh ? new Date(fh).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : '—'; });
 
-  const canvasId = tipo === 'fieles' ? 'grafica-feligreses' : 'grafica-visitantes';
-  const chartVar = tipo === 'fieles' ? 'graficaFeligreses' : 'graficaVisitantes';
+  if (S.graficaUnica) { S.graficaUnica.destroy(); S.graficaUnica = null; }
 
-  if (S[chartVar]) { S[chartVar].destroy(); S[chartVar] = null; }
-
-  const fielesDs = [
+  const ds = [
     { label: 'Caballeros', data: rev.map(r => r.caballeros || 0), backgroundColor: '#00519Acc' },
     { label: 'Damas', data: rev.map(r => r.damas || 0), backgroundColor: '#C41E6Acc' },
-    { label: 'Adol. V', data: rev.map(r => r.adol_varones || 0), backgroundColor: '#6E41B0cc' },
-    { label: 'Adol. M', data: rev.map(r => r.adol_damas || 0), backgroundColor: '#9B6DC6cc' },
-    { label: 'Niños V', data: rev.map(r => r.ninos_varones || 0), backgroundColor: '#1E88D4cc' },
-    { label: 'Niñas M', data: rev.map(r => r.ninos_damas || 0), backgroundColor: '#5CB8E0cc' }
-  ];
-  const visitantesDs = [
-    { label: 'V.M.', data: rev.map(r => r.vm || 0), backgroundColor: '#2ECC71cc' },
-    { label: 'V.F.', data: rev.map(r => r.vf || 0), backgroundColor: '#E74C3Ccc' },
-    { label: 'V.M. Adol.', data: rev.map(r => r.vm_adolescentes || 0), backgroundColor: '#F39C12cc' },
-    { label: 'V.F. Adol.', data: rev.map(r => r.vf_adolescentes || 0), backgroundColor: '#E91E63cc' },
-    { label: 'V.M. Niños', data: rev.map(r => r.vm_ninos || 0), backgroundColor: '#00BCD4cc' },
-    { label: 'V.F. Niñas', data: rev.map(r => r.vf_ninas || 0), backgroundColor: '#9C27B0cc' }
+    { label: 'Adolescentes', data: rev.map(r => (r.adol_varones || 0) + (r.adol_damas || 0)), backgroundColor: '#6E41B0cc' },
+    { label: 'Niños', data: rev.map(r => (r.ninos_varones || 0) + (r.ninos_damas || 0)), backgroundColor: '#1E88D4cc' },
+    { label: 'Visitas', data: rev.map(r => (r.vm || 0) + (r.vf || 0) + (r.vm_adolescentes || 0) + (r.vf_adolescentes || 0) + (r.vm_ninos || 0) + (r.vf_ninas || 0)), backgroundColor: '#2ECC71cc' }
   ];
 
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  S[chartVar] = new Chart(ctx, {
+  const ctx = document.getElementById('grafica-unica').getContext('2d');
+  S.graficaUnica = new Chart(ctx, {
     type: 'bar',
-    data: { labels, datasets: tipo === 'fieles' ? fielesDs : visitantesDs },
+    data: { labels, datasets: ds },
     options: {
       responsive: true,
       plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } }, tooltip: { mode: 'index', intersect: false } } },
