@@ -1739,7 +1739,7 @@ async function guardarAsistencia() {
   try {
     await api('POST', `/asistencia/${S.servicioActivo.id}`, payload);
     toast('Registro guardado');
-  } catch { toast('Guardado localmente'); }
+  } catch (e) { toast('Error: ' + (e.message || e)); console.error(e); }
   const subF = caballeros + damas + adol_varones + adol_damas + ninos_varones + ninos_damas;
   const subV = vm + vf + vm_adolescentes + vf_adolescentes + vm_ninos + vf_ninas;
   document.getElementById('confirm-titulo').textContent = 'Registro guardado';
