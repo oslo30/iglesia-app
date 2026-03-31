@@ -1667,6 +1667,7 @@ function bloquearInputsPorFecha(servicio) {
     bloquear = ahora < inicio || ahora > fin;
     msg = bloquear ? 'La asistencia se habilita de 6:30 PM a 8:30 PM' : 'Registro abierto hasta las 8:30 PM';
   }
+  bloquear = false; // DESBLOQUEADO para pruebas
   inputs.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
