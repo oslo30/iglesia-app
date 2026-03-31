@@ -15,20 +15,7 @@ async function porServicio(servicioId) {
   return data;
 }
 
-// Total de todas las categorías
-function calcTotal(feligreses, visitantes) {
-  const f = feligreses ?? {};
-  const v = visitantes ?? {};
-  return (
-    (f.caballeros || 0) + (f.damas || 0) +
-    (f.adol_varones || 0) + (f.adol_damas || 0) +
-    (f.ninos_varones || 0) + (f.ninos_damas || 0) +
-    (v.vm || 0) + (v.vf || 0) +
-    (v.vm_adolescentes || 0) + (v.vf_adolescentes || 0) +
-    (v.vm_ninos || 0) + (v.vf_ninas || 0)
-  );
-}
-
+// Total se calcula en la BD via trigger
 async function registrar({ servicioId, feligreses, visitantes, notas, ujierId }) {
   const { data: svc } = await supabase
     .from('servicios').select('id, estado').eq('id', servicioId).single();
@@ -37,7 +24,6 @@ async function registrar({ servicioId, feligreses, visitantes, notas, ujierId })
 
   const f = feligreses ?? {};
   const v = visitantes ?? {};
-  const total = calcTotal(feligreses, visitantes);
 
   const { data, error } = await supabase
     .from('registros_asistencia')
@@ -57,8 +43,7 @@ async function registrar({ servicioId, feligreses, visitantes, notas, ujierId })
       vf_adolescentes: v.vf_adolescentes ?? 0,
       vm_ninos:        v.vm_ninos      ?? 0,
       vf_ninas:        v.vf_ninas      ?? 0,
-      // Meta
-      total,
+      // Meta (total se calcula en la BD via trigger)
       notas:           notas    ?? null,
       ujier_id:        ujierId ?? null,
     }, { onConflict: 'servicio_id' })
