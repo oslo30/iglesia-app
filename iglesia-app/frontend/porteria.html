@@ -146,8 +146,8 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      background: var(--primary-s);
-      color: var(--primary);
+      background: #6B8E23;
+      color: #fff;
       font-size: 11px;
       padding: 5px 10px;
       border-radius: var(--radius-full);
@@ -158,7 +158,7 @@
       content: '';
       width: 6px;
       height: 6px;
-      background: var(--primary);
+      background: #fff;
       border-radius: 50%;
       animation: pulse 2s infinite;
     }
@@ -169,12 +169,12 @@
     }
 
     .badge-fin {
-      background: var(--gray-l);
-      color: var(--gray);
+      background: var(--red-l);
+      color: var(--red);
       font-size: 11px;
       padding: 5px 10px;
       border-radius: var(--radius-full);
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .btn-exit {
@@ -439,7 +439,7 @@
       flex-shrink: 0;
     }
 
-    .status-dot.en_curso { background: var(--primary); }
+    .status-dot.en_curso { background: #6B8E23; }
     .status-dot.finalizado { background: var(--gray); }
     .status-dot.programado { background: var(--border); }
     .status-dot.cancelado { background: var(--red); }
@@ -1573,17 +1573,18 @@ function renderServicios(lista) {
     const ujierNombre = reg?.ujier_id ? (S.ujieres?.find(u => u.id === reg.ujier_id)?.nombre_completo) : '';
     const nota = reg?.notas ? `<div class="svc-note">"${reg.notas}"</div>` : '';
     const isFamilia = s.nombre?.includes('Familia') || s.caracter?.includes('Familia');
+    const badge = getServicioBadge(s.fecha_hora);
     window['_svc_' + s.id] = s;
     return `<div class="svc-wrap" id="${sid}">
       <div class="service-card ${activo ? 'highlight' : ''} ${isFamilia ? 'familia-card' : ''}" onclick="if(!event.target.closest('.svc-delete-btn')) abrirServicio(window['_svc_${s.id}'])">
         <div class="service-card-header">
           <div class="service-card-title">${s.nombre}</div>
           <div class="service-card-badge">
-            ${activo ? '<span class="badge-live">Activo</span>' : `<span class="service-card-count">${total}</span>`}
+            ${badge.label === 'En vivo' ? '<span class="badge-live">En vivo</span>' : `<span class="service-card-count">${total}</span>`}
           </div>
         </div>
         <div class="service-card-meta">
-          <span><span class="status-dot ${s.estado}"></span> ${LBL[s.estado]}</span>
+          <span><span class="status-dot ${badge.dot}"></span> ${badge.label}</span>
           <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> ${hora}</span>
           ${s.caracter ? `<span>· ${s.caracter}</span>` : ''}
         </div>
@@ -1628,8 +1629,9 @@ function abrirServicio(s) {
   document.getElementById('reg-sub').textContent = new Date(s.fecha_hora).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) + (s.caracter ? ' · ' + s.caracter : '');
   document.getElementById('notas-reg').value = reg?.notas || '';
   const badge = document.getElementById('reg-badge');
-  badge.textContent = s.estado === 'en_curso' ? '● Activo' : s.estado === 'finalizado' ? 'Finalizado' : 'Próximo';
-  badge.className = s.estado === 'en_curso' ? 'badge-live' : 'badge-fin';
+  const sb = getServicioBadge(s.fecha_hora);
+  badge.textContent = sb.label;
+  badge.className = sb.cls;
   document.getElementById('btn-eliminar-reg').style.display = S.registroId ? 'block' : 'none';
   if (reg?.ujier_id) document.getElementById('reg-responsable').value = reg.ujier_id;
   actualizarContadores();
@@ -1848,19 +1850,45 @@ function agregarCaracterCustom() {
 
 function proximoDia(dia, hora, minuto = 0) {
   const h = new Date();
-  const d = (dia - h.getDay() + 7) % 7 || 7;
+  const diff = (dia - h.getDay() + 7) % 7;
   const f = new Date(h);
-  f.setDate(h.getDate() + d);
+  f.setDate(h.getDate() + (diff === 0 ? 0 : diff));
   f.setHours(hora, minuto, 0, 0);
   return new Date(f.getTime() - f.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
+function getServicioBadge(fechaHora) {
+  const ahora = new Date();
+  const fechaSvc = new Date(fechaHora);
+  const nombre = '';
+  const isFamilia = false;
+  const isDomingoAM = false;
+  const isEvangelistico = false;
+  let inicio, fin;
+  if (isFamilia) {
+    return { label: 'Finalizado', cls: 'badge-fin', dot: 'finalizado' };
+  } else if (isDomingoAM) {
+    inicio = new Date(fechaSvc); inicio.setHours(9, 0, 0, 0);
+    fin = new Date(fechaSvc); fin.setHours(11, 0, 0, 0);
+  } else if (isEvangelistico || (fechaSvc.getDay() === 0 && fechaSvc.getHours() >= 17)) {
+    inicio = new Date(fechaSvc); inicio.setHours(18, 0, 0, 0);
+    fin = new Date(fechaSvc); fin.setHours(19, 30, 0, 0);
+  } else {
+    // Martes, jueves, sábado: 6:30 PM a 8:30 PM
+    inicio = new Date(fechaSvc); inicio.setHours(18, 30, 0, 0);
+    fin = new Date(fechaSvc); fin.setHours(20, 30, 0, 0);
+  }
+  if (ahora < inicio) return { label: 'Próximo', cls: 'badge-fin', dot: 'programado' };
+  if (ahora >= inicio && ahora <= fin) return { label: 'En vivo', cls: 'badge-live', dot: 'en_curso' };
+  return { label: 'Finalizado', cls: 'badge-fin', dot: 'finalizado' };
 }
 
 function proximoDiaFamilia() {
   // Próximo domingo a las 6:00 PM
   const h = new Date();
-  const d = (0 - h.getDay() + 7) % 7 || 7;
+  const diffDom = (0 - h.getDay() + 7) % 7;
   const domingo = new Date(h);
-  domingo.setDate(h.getDate() + d);
+  domingo.setDate(h.getDate() + (diffDom === 0 ? 0 : diffDom));
   domingo.setHours(18, 0, 0, 0);
   // Siguiente martes a las 6:30 PM
   const martes = new Date(domingo);
