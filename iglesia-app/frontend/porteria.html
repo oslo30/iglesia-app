@@ -499,6 +499,30 @@
       box-shadow: 0 4px 12px rgba(29, 158, 117, 0.25);
     }
 
+    .fab-download {
+      position: fixed;
+      bottom: 92px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(29, 158, 117, 0.35);
+      transition: all 0.2s;
+      z-index: 50;
+    }
+
+    .fab-download:active {
+      transform: scale(0.92);
+    }
+
     /* ── BUTTONS ── */
     .btn-primary {
       width: 100%;
@@ -1019,12 +1043,6 @@
         </div>
       </div>
       <div id="home-1" style="display:none">
-        <div style="padding: 0 0 12px 0">
-          <button class="btn-primary" style="width:100%" onclick="descargarHistorial()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Descargar imagen
-          </button>
-        </div>
         <div id="historial-list"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
       </div>
       <div id="home-2" style="display:none">
@@ -1055,6 +1073,9 @@
     </div>
 
     <button class="fab" id="fab-nuevo-servicio" onclick="abrirNuevoServicio()">+</button>
+    <button class="fab-download" id="fab-download" onclick="descargarHistorial()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </button>
   </div>
 
   <!-- REGISTRO -->
@@ -1474,6 +1495,7 @@ function homeTab(i, el) {
   [0, 1, 2].forEach(j => document.getElementById('home-' + j).style.display = j === i ? 'block' : 'none');
   el.closest('.tabs').querySelectorAll('.tab-item').forEach((t, j) => t.classList.toggle('active', j === i));
   document.getElementById('fab-nuevo-servicio').style.display = i === 0 ? 'flex' : 'none';
+  document.getElementById('fab-download').style.display = i === 1 ? 'flex' : 'none';
   if (i === 1) cargarHistorial();
   if (i === 2) cargarGrafica('semana');
 }
@@ -2149,9 +2171,12 @@ async function descargarHistorial() {
   cards.forEach(c => c.classList.add('hist-card-compact'));
   const container = document.getElementById('home-1');
   container.scrollIntoView({ behavior: 'instant' });
+  const fab = document.getElementById('fab-download');
+  fab.style.display = 'none';
   try {
     const canvas = await html2canvas(container, { useCORS: true, scale: 2, backgroundColor: '#ffffff' });
     cards.forEach(c => c.classList.remove('hist-card-compact'));
+    fab.style.display = '';
     const link = document.createElement('a');
     const fecha = new Date().toLocaleDateString('es-CO');
     link.download = `historial-ujieres-${fecha}.png`;
@@ -2159,6 +2184,7 @@ async function descargarHistorial() {
     link.click();
   } catch {
     cards.forEach(c => c.classList.remove('hist-card-compact'));
+    fab.style.display = '';
     toast('No se pudo generar la imagen', true);
   }
 }
