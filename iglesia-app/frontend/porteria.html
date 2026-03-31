@@ -146,8 +146,8 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      background: #6B8E23;
-      color: #fff;
+      background: var(--primary-s);
+      color: var(--primary);
       font-size: 11px;
       padding: 5px 10px;
       border-radius: var(--radius-full);
@@ -158,7 +158,7 @@
       content: '';
       width: 6px;
       height: 6px;
-      background: #fff;
+      background: var(--primary);
       border-radius: 50%;
       animation: pulse 2s infinite;
     }
@@ -169,12 +169,12 @@
     }
 
     .badge-fin {
-      background: var(--red-l);
-      color: var(--red);
+      background: var(--gray-l);
+      color: var(--gray);
       font-size: 11px;
       padding: 5px 10px;
       border-radius: var(--radius-full);
-      font-weight: 600;
+      font-weight: 500;
     }
 
     .btn-exit {
@@ -439,7 +439,7 @@
       flex-shrink: 0;
     }
 
-    .status-dot.en_curso { background: #6B8E23; }
+    .status-dot.en_curso { background: var(--primary); }
     .status-dot.finalizado { background: var(--gray); }
     .status-dot.programado { background: var(--border); }
     .status-dot.cancelado { background: var(--red); }
@@ -1054,7 +1054,7 @@
       </div>
     </div>
 
-    <button class="fab" onclick="abrirNuevoServicio()">+</button>
+    <button class="fab" id="fab-nuevo-servicio" onclick="abrirNuevoServicio()">+</button>
   </div>
 
   <!-- REGISTRO -->
@@ -1473,6 +1473,7 @@ function goBack() {
 function homeTab(i, el) {
   [0, 1, 2].forEach(j => document.getElementById('home-' + j).style.display = j === i ? 'block' : 'none');
   el.closest('.tabs').querySelectorAll('.tab-item').forEach((t, j) => t.classList.toggle('active', j === i));
+  document.getElementById('fab-nuevo-servicio').style.display = i === 0 ? 'flex' : 'none';
   if (i === 1) cargarHistorial();
   if (i === 2) cargarGrafica('semana');
 }
