@@ -17,6 +17,10 @@
       --amber-l: #FAEEDA;
       --blue: #185FA5;
       --blue-l: #E6F1FB;
+      --pink: #C41E6A;
+      --pink-l: #FCE8EF;
+      --purple: #6E41B0;
+      --purple-l: #EEE6F5;
       --red: #A32D2D;
       --red-l: #FCEBEB;
       --gray: #6B7280;
@@ -49,6 +53,8 @@
         --primary-l: #04342C;
         --amber-l: #2A1E06;
         --blue-l: #061A30;
+        --pink-l: #2A0E1A;
+        --purple-l: #1E0E2A;
         --red-l: #2A0E0E;
       }
     }
@@ -296,6 +302,14 @@
 
     .service-card.highlight::before {
       background: var(--primary);
+    }
+
+    .service-card.familia-card {
+      border-color: rgba(196, 30, 106, 0.3);
+    }
+
+    .service-card.familia-card::before {
+      background: var(--pink);
     }
 
     .service-card-header {
@@ -655,6 +669,26 @@
       text-align: center;
       color: var(--text);
     }
+    .cnt-input {
+      width: 60px;
+      height: 44px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+      padding: 0 6px;
+    }
+    .cnt-input:focus {
+      border-color: var(--primary);
+    }
+    .cnt-input:disabled {
+      background: var(--gray-l);
+      color: var(--text3);
+    }
 
     /* ── SUMMARY ── */
     .summary {
@@ -994,17 +1028,52 @@
 
       <div class="counter-card">
         <div class="counter-row">
-          <div class="counter-icon" style="background:var(--primary-l)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </div>
+          <div class="counter-icon" style="background:var(--primary-l)">👨</div>
           <div class="counter-info">
-            <div class="counter-name">Adultos</div>
-            <div class="counter-desc">Miembros y visitas adultas</div>
+            <div class="counter-name">Caballeros</div>
+            <div class="counter-desc">Hombres adultos</div>
           </div>
           <div class="counter-ctrl">
-            <button class="btn-cnt" onclick="cambiar('adultos',-1)">−</button>
-            <span class="cnt-val" id="v-adultos">0</span>
-            <button class="btn-cnt" onclick="cambiar('adultos',1)">+</button>
+            <input type="number" class="cnt-input" id="v-caballeros" value="0" min="0" oninput="actualizarAsistenciaDirecta('caballeros')">
+          </div>
+        </div>
+      </div>
+
+      <div class="counter-card">
+        <div class="counter-row">
+          <div class="counter-icon" style="background:var(--pink-l)">👩</div>
+          <div class="counter-info">
+            <div class="counter-name">Damas</div>
+            <div class="counter-desc">Mujeres adultas</div>
+          </div>
+          <div class="counter-ctrl">
+            <input type="number" class="cnt-input" id="v-damas" value="0" min="0" oninput="actualizarAsistenciaDirecta('damas')">
+          </div>
+        </div>
+      </div>
+
+      <div class="counter-card">
+        <div class="counter-row">
+          <div class="counter-icon" style="background:var(--purple-l)">🧑</div>
+          <div class="counter-info">
+            <div class="counter-name">Adolescentes</div>
+            <div class="counter-desc">Varones</div>
+          </div>
+          <div class="counter-ctrl">
+            <input type="number" class="cnt-input" id="v-adol_varones" value="0" min="0" oninput="actualizarAsistenciaDirecta('adol_varones')">
+          </div>
+        </div>
+      </div>
+
+      <div class="counter-card">
+        <div class="counter-row">
+          <div class="counter-icon" style="background:var(--purple-l)">👧</div>
+          <div class="counter-info">
+            <div class="counter-name">Adolescentes</div>
+            <div class="counter-desc">Damas</div>
+          </div>
+          <div class="counter-ctrl">
+            <input type="number" class="cnt-input" id="v-adol_damas" value="0" min="0" oninput="actualizarAsistenciaDirecta('adol_damas')">
           </div>
         </div>
       </div>
@@ -1014,36 +1083,39 @@
           <div class="counter-icon" style="background:var(--blue-l)">👦</div>
           <div class="counter-info">
             <div class="counter-name">Niños</div>
-            <div class="counter-desc">Hasta 12 años</div>
+            <div class="counter-desc">Varones</div>
           </div>
           <div class="counter-ctrl">
-            <button class="btn-cnt" onclick="cambiar('ninos',-1)">−</button>
-            <span class="cnt-val" id="v-ninos">0</span>
-            <button class="btn-cnt" onclick="cambiar('ninos',1)">+</button>
+            <input type="number" class="cnt-input" id="v-ninos_varones" value="0" min="0" oninput="actualizarAsistenciaDirecta('ninos_varones')">
           </div>
         </div>
       </div>
 
       <div class="counter-card">
         <div class="counter-row">
-          <div class="counter-icon" style="background:var(--amber-l)">🤝</div>
+          <div class="counter-icon" style="background:var(--blue-l)">👧‍♀️</div>
           <div class="counter-info">
-            <div class="counter-name">Amigos</div>
-            <div class="counter-desc">Visitantes</div>
+            <div class="counter-name">Niños</div>
+            <div class="counter-desc">Damas</div>
           </div>
           <div class="counter-ctrl">
-            <button class="btn-cnt" onclick="cambiar('amigos',-1)">−</button>
-            <span class="cnt-val" id="v-amigos">0</span>
-            <button class="btn-cnt" onclick="cambiar('amigos',1)">+</button>
+            <input type="number" class="cnt-input" id="v-ninos_damas" value="0" min="0" oninput="actualizarAsistenciaDirecta('ninos_damas')">
           </div>
         </div>
       </div>
 
       <div class="summary">
-        <div class="sum-row"><span>Adultos</span><span id="s-adultos">0</span></div>
-        <div class="sum-row"><span>Niños</span><span id="s-ninos">0</span></div>
-        <div class="sum-row"><span>Amigos</span><span id="s-amigos">0</span></div>
+        <div class="sum-row"><span>Caballeros</span><span id="s-caballeros">0</span></div>
+        <div class="sum-row"><span>Damas</span><span id="s-damas">0</span></div>
+        <div class="sum-row"><span>Adol. Varones</span><span id="s-adol_varones">0</span></div>
+        <div class="sum-row"><span>Adol. Damas</span><span id="s-adol_damas">0</span></div>
+        <div class="sum-row"><span>Niños Varones</span><span id="s-ninos_varones">0</span></div>
+        <div class="sum-row"><span>Niñas Damas</span><span id="s-ninos_damas">0</span></div>
         <div class="sum-row"><span>Total</span><span id="s-total">0</span></div>
+      </div>
+
+      <div id="lock-asistencia-msg" style="display:none;background:var(--amber-l);color:var(--amber);padding:10px 14px;border-radius:8px;font-size:13px;text-align:center;margin-bottom:12px">
+        ⚠️ La asistencia se puede registrar a partir de la fecha y hora del servicio
       </div>
 
       <div class="form-group">
@@ -1077,7 +1149,8 @@
           <option value="jueves">Culto Jueves</option>
           <option value="sabado">Culto Sábado</option>
           <option value="domingo-am">Escuela Dominical</option>
-          <option value="domingo-pm">Culto Dominical PM</option>
+          <option value="domingo-pm">Culto Evangelístico</option>
+          <option value="domingo-familia">Día de Familia</option>
         </select>
       </div>
 
@@ -1142,16 +1215,28 @@
     <div class="modal">
       <div class="modal-title">Editar registro</div>
       <div class="form-group">
-        <div class="form-label">Adultos</div>
-        <input type="number" class="input-field" id="edit-adultos" min="0">
+        <div class="form-label">Caballeros</div>
+        <input type="number" class="input-field" id="edit-caballeros" min="0">
       </div>
       <div class="form-group">
-        <div class="form-label">Niños</div>
-        <input type="number" class="input-field" id="edit-ninos" min="0">
+        <div class="form-label">Damas</div>
+        <input type="number" class="input-field" id="edit-damas" min="0">
       </div>
       <div class="form-group">
-        <div class="form-label">Amigos</div>
-        <input type="number" class="input-field" id="edit-amigos" min="0">
+        <div class="form-label">Adol. Varones</div>
+        <input type="number" class="input-field" id="edit-adol_varones" min="0">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Adol. Damas</div>
+        <input type="number" class="input-field" id="edit-adol_damas" min="0">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Niños Varones</div>
+        <input type="number" class="input-field" id="edit-ninos_varones" min="0">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Niñas Damas</div>
+        <input type="number" class="input-field" id="edit-ninos_damas" min="0">
       </div>
       <div class="form-group">
         <div class="form-label">Notas</div>
@@ -1195,7 +1280,7 @@
 const API = '/api';
 const S = {
   servicioActivo: null,
-  asistencia: { adultos: 0, ninos: 0, amigos: 0 },
+  asistencia: { caballeros: 0, damas: 0, adol_varones: 0, adol_damas: 0, ninos_varones: 0, ninos_damas: 0 },
   registroId: null,
   paginaStack: ['p-home'],
   graficaInstance: null,
@@ -1210,11 +1295,12 @@ const S = {
   editandoSvcId: null
 };
 const PLANTILLAS = {
-  'martes': { nombre: 'Culto Martes — Enseñanza y oración', caracteres: ['Enseñanza', 'Oración'], dia: 2, hora: 19 },
-  'jueves': { nombre: 'Culto Jueves — Intercesión', caracteres: ['Intercesión', 'Dorcas'], dia: 4, hora: 19 },
-  'sabado': { nombre: 'Culto Sábado', caracteres: ['Variado'], dia: 6, hora: 18 },
-  'domingo-am': { nombre: 'Escuela Dominical', caracteres: ['Escuela dominical', 'Formación'], dia: 0, hora: 8 },
-  'domingo-pm': { nombre: 'Culto Evangelístico', caracteres: ['Evangelístico', 'Misional'], dia: 0, hora: 17 }
+  'martes': { nombre: 'Culto Martes — Enseñanza y oración', caracteres: ['Enseñanza', 'Oración'], dia: 2, hora: 18, minuto: 30, toast: 'Culto de martes habilitado a las 6:30 PM' },
+  'jueves': { nombre: 'Culto Jueves — Intercesión', caracteres: ['Intercesión', 'Dorcas'], dia: 4, hora: 18, minuto: 30, toast: 'Culto de jueves habilitado a las 6:30 PM' },
+  'sabado': { nombre: 'Culto Sábado', caracteres: ['Variado'], dia: 6, hora: 18, minuto: 30, toast: 'Culto del sábado habilitado a las 6:30 PM' },
+  'domingo-am': { nombre: 'Escuela Dominical', caracteres: ['Escuela dominical', 'Formación'], dia: 0, hora: 8, minuto: 0, toast: 'Escuela Dominical habilitada a las 9:00 AM' },
+  'domingo-pm': { nombre: 'Culto Evangelístico', caracteres: ['Evangelístico', 'Misional'], dia: 0, hora: 18, minuto: 0, toast: 'Culto Evangelístico habilitado a las 6:00 PM' },
+  'domingo-familia': { nombre: 'Día de Familia', caracteres: ['Familia'], dia: 0, hora: 18, minuto: 0, toast: 'Día de Familia habilitado — Próximo culto (martes) se habilitará al guardar', bloquear: false }
 };
 const CARACTERES_BASE = ['Enseñanza', 'Oración', 'Evangelístico', 'Escuela dominical', 'Intercesión', 'Dorcas', 'Misional', 'Variado', 'Formación', 'Especial'];
 
@@ -1302,7 +1388,7 @@ async function cargarServicios() {
 function mockSvcs() {
   const h = new Date();
   return [
-    { id: 'm1', nombre: 'Servicio 8:00 AM', estado: 'finalizado', caracter: 'Escuela dominical', fecha_hora: new Date(h.setHours(8, 0)).toISOString(), registros_asistencia: [{ total: 187, adultos: 140, ninos: 32, amigos: 15 }] },
+    { id: 'm1', nombre: 'Servicio 8:00 AM', estado: 'finalizado', caracter: 'Escuela dominical', fecha_hora: new Date(h.setHours(8, 0)).toISOString(), registros_asistencia: [{ total: 187, caballeros: 70, damas: 70, adol_varones: 15, adol_damas: 12, ninos_varones: 10, ninos_damas: 10 }] },
     { id: 'm2', nombre: 'Servicio 10:30 AM', estado: 'en_curso', caracter: 'Evangelístico', fecha_hora: new Date(h.setHours(10, 30)).toISOString(), registros_asistencia: [] }
   ];
 }
@@ -1323,9 +1409,10 @@ function renderServicios(lista) {
     const hora = new Date(s.fecha_hora).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
     const sid = 'svc-' + s.id;
     const respNombre = s.responsable_nombre || '';
+    const isFamilia = s.nombre?.includes('Familia') || s.caracter?.includes('Familia');
     window['_svc_' + s.id] = s;
     return `<div class="svc-wrap" id="${sid}">
-      <div class="service-card ${activo ? 'highlight' : ''}" onclick="if(!event.target.closest('.svc-delete-btn')) abrirServicio(window['_svc_${s.id}'])">
+      <div class="service-card ${activo ? 'highlight' : ''} ${isFamilia ? 'familia-card' : ''}" onclick="if(!event.target.closest('.svc-delete-btn')) abrirServicio(window['_svc_${s.id}'])">
         <div class="service-card-header">
           <div class="service-card-title">${s.nombre}</div>
           <div class="service-card-badge">
@@ -1355,13 +1442,16 @@ function toggleMenu(sid) {
 
 function abrirServicio(s) {
   S.servicioActivo = s;
-  S.asistencia = { adultos: 0, ninos: 0, amigos: 0 };
+  S.asistencia = { caballeros: 0, damas: 0, adol_varones: 0, adol_damas: 0, ninos_varones: 0, ninos_damas: 0 };
   S.registroId = null;
   const reg = s.registros_asistencia?.[0];
   if (reg) {
-    S.asistencia.adultos = reg.adultos || 0;
-    S.asistencia.ninos = reg.ninos || 0;
-    S.asistencia.amigos = reg.amigos || 0;
+    S.asistencia.caballeros = reg.caballeros || 0;
+    S.asistencia.damas = reg.damas || 0;
+    S.asistencia.adol_varones = reg.adol_varones || 0;
+    S.asistencia.adol_damas = reg.adol_damas || 0;
+    S.asistencia.ninos_varones = reg.ninos_varones || 0;
+    S.asistencia.ninos_damas = reg.ninos_damas || 0;
     S.registroId = reg.id || null;
   }
   document.getElementById('reg-titulo').textContent = s.nombre;
@@ -1373,34 +1463,99 @@ function abrirServicio(s) {
   document.getElementById('btn-eliminar-reg').style.display = S.registroId ? 'block' : 'none';
   if (reg?.registrado_por) document.getElementById('reg-responsable').value = reg.registrado_por;
   actualizarContadores();
+  bloquearInputsPorFecha(s);
   document.querySelectorAll('.svc-menu.open').forEach(m => m.classList.remove('open'));
   goTo('p-registro');
 }
 
 function cambiar(key, d) { S.asistencia[key] = Math.max(0, (S.asistencia[key] || 0) + d); actualizarContadores(); }
 
-function actualizarContadores() {
-  const { adultos, ninos, amigos } = S.asistencia;
-  ['adultos', 'ninos', 'amigos'].forEach(k => {
-    document.getElementById('v-' + k).textContent = S.asistencia[k];
-    document.getElementById('s-' + k).textContent = S.asistencia[k];
+function actualizarAsistenciaDirecta(key) {
+  const input = document.getElementById('v-' + key);
+  S.asistencia[key] = Math.max(0, parseInt(input.value) || 0);
+  actualizarContadores();
+}
+
+function bloquearInputsPorFecha(servicio) {
+  const inputs = ['v-caballeros','v-damas','v-adol_varones','v-adol_damas','v-ninos_varones','v-ninos_damas'];
+  const ahora = new Date();
+  const fechaSvc = new Date(servicio.fecha_hora);
+  const nombre = servicio.nombre || '';
+  const caracter = servicio.caracter || '';
+  const isFamilia = nombre.includes('Familia') || caracter.includes('Familia');
+  const isDomingoAM = nombre.includes('Escuela Dominical') || (fechaSvc.getDay() === 0 && fechaSvc.getHours() < 12);
+  const isEvangelistico = nombre.includes('Evangelístico');
+  let bloquear = true;
+  let msg = 'La asistencia se puede registrar a partir de la fecha y hora del servicio';
+  if (isFamilia) {
+    bloquear = true;
+    msg = 'Día de Familia no permite registro de asistencia';
+  } else if (isDomingoAM) {
+    // 9:00 AM a 11:00 AM
+    const inicio = new Date(fechaSvc);
+    inicio.setHours(9, 0, 0, 0);
+    const fin = new Date(fechaSvc);
+    fin.setHours(11, 0, 0, 0);
+    bloquear = ahora < inicio || ahora > fin;
+    msg = bloquear ? 'La asistencia se habilita de 9:00 AM a 11:00 AM' : 'Registro abierto hasta las 11:00 AM';
+  } else if (isEvangelistico || (fechaSvc.getDay() === 0 && fechaSvc.getHours() >= 17)) {
+    // 6:00 PM a 7:30 PM
+    const inicio = new Date(fechaSvc);
+    inicio.setHours(18, 0, 0, 0);
+    const fin = new Date(fechaSvc);
+    fin.setHours(19, 30, 0, 0);
+    bloquear = ahora < inicio || ahora > fin;
+    msg = bloquear ? 'La asistencia se habilita de 6:00 PM a 7:30 PM' : 'Registro abierto hasta las 7:30 PM';
+  } else {
+    // Martes, jueves, sábado: 6:30 PM a 8:30 PM
+    const inicio = new Date(fechaSvc);
+    inicio.setHours(18, 30, 0, 0);
+    const fin = new Date(fechaSvc);
+    fin.setHours(20, 30, 0, 0);
+    bloquear = ahora < inicio || ahora > fin;
+    msg = bloquear ? 'La asistencia se habilita de 6:30 PM a 8:30 PM' : 'Registro abierto hasta las 8:30 PM';
+  }
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.disabled = bloquear;
+      el.style.opacity = bloquear ? '0.5' : '1';
+      el.style.pointerEvents = bloquear ? 'none' : 'auto';
+    }
   });
-  document.getElementById('s-total').textContent = adultos + ninos + amigos;
+  const lockMsg = document.getElementById('lock-asistencia-msg');
+  if (lockMsg) {
+    lockMsg.textContent = msg;
+    lockMsg.style.display = bloquear ? 'block' : 'none';
+  }
+}
+
+function actualizarContadores() {
+  const keys = ['caballeros', 'damas', 'adol_varones', 'adol_damas', 'ninos_varones', 'ninos_damas'];
+  keys.forEach(k => {
+    const el = document.getElementById('v-' + k);
+    const sumEl = document.getElementById('s-' + k);
+    if (el) el.value = S.asistencia[k];
+    if (sumEl) sumEl.textContent = S.asistencia[k];
+  });
+  const total = keys.reduce((sum, k) => sum + (S.asistencia[k] || 0), 0);
+  document.getElementById('s-total').textContent = total;
 }
 
 async function guardarAsistencia() {
-  const { adultos, ninos, amigos } = S.asistencia;
+  const { caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas } = S.asistencia;
   const notas = document.getElementById('notas-reg').value;
   const resp = document.getElementById('reg-responsable').value;
+  const payload = { caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, notas: notas || undefined, registradoPor: resp || undefined };
   try {
-    await api('POST', `/asistencia/${S.servicioActivo.id}`, { adultos, ninos, amigos, notas: notas || undefined, registradoPor: resp || undefined });
+    await api('POST', `/asistencia/${S.servicioActivo.id}`, payload);
     toast('Registro guardado');
   } catch { toast('Guardado localmente'); }
-  const total = adultos + ninos + amigos;
+  const total = caballeros + damas + adol_varones + adol_damas + ninos_varones + ninos_damas;
   document.getElementById('confirm-titulo').textContent = 'Registro guardado';
   document.getElementById('confirm-sub').textContent = S.servicioActivo.nombre;
   document.getElementById('confirm-summary').innerHTML =
-    `<div class="sum-row"><span>Adultos</span><span>${adultos}</span></div><div class="sum-row"><span>Niños</span><span>${ninos}</span></div><div class="sum-row"><span>Amigos</span><span>${amigos}</span></div><div class="sum-row"><span>Total</span><span>${total}</span></div>`;
+    `<div class="sum-row"><span>Caballeros</span><span>${caballeros}</span></div><div class="sum-row"><span>Damas</span><span>${damas}</span></div><div class="sum-row"><span>Adol. Varones</span><span>${adol_varones}</span></div><div class="sum-row"><span>Adol. Damas</span><span>${adol_damas}</span></div><div class="sum-row"><span>Niños Varones</span><span>${ninos_varones}</span></div><div class="sum-row"><span>Niñas Damas</span><span>${ninos_damas}</span></div><div class="sum-row"><span>Total</span><span>${total}</span></div>`;
   goTo('p-confirm');
 }
 
@@ -1434,7 +1589,7 @@ async function ejecutarEliminar() {
   cerrarModal('modal-confirmar');
   if (S.eliminarTipo === 'registro') {
     try { await api('DELETE', `/asistencia/${S.servicioActivo.id}`); } catch {}
-    S.asistencia = { adultos: 0, ninos: 0, amigos: 0 };
+    S.asistencia = { caballeros: 0, damas: 0, adol_varones: 0, adol_damas: 0, ninos_varones: 0, ninos_damas: 0 };
     S.registroId = null;
     document.getElementById('btn-eliminar-reg').style.display = 'none';
     document.getElementById('notas-reg').value = '';
@@ -1487,21 +1642,45 @@ function agregarCaracterCustom() {
   toggleAddCaracter();
 }
 
-function proximoDia(dia, hora) {
+function proximoDia(dia, hora, minuto = 0) {
   const h = new Date();
   const d = (dia - h.getDay() + 7) % 7 || 7;
   const f = new Date(h);
   f.setDate(h.getDate() + d);
-  f.setHours(hora, 0, 0, 0);
+  f.setHours(hora, minuto, 0, 0);
   return new Date(f.getTime() - f.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
+function proximoDiaFamilia() {
+  // Próximo domingo a las 6:00 PM
+  const h = new Date();
+  const d = (0 - h.getDay() + 7) % 7 || 7;
+  const domingo = new Date(h);
+  domingo.setDate(h.getDate() + d);
+  domingo.setHours(18, 0, 0, 0);
+  // Siguiente martes a las 6:30 PM
+  const martes = new Date(domingo);
+  martes.setDate(domingo.getDate() + 2);
+  martes.setHours(18, 30, 0, 0);
+  return {
+    domingo: new Date(domingo.getTime() - domingo.getTimezoneOffset() * 60000).toISOString().slice(0, 16),
+    martes: new Date(martes.getTime() - martes.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+  };
 }
 
 function aplicarPlantilla(k) {
   if (!k) return;
   const p = PLANTILLAS[k];
   document.getElementById('nsvc-nombre').value = p.nombre;
-  document.getElementById('nsvc-fecha').value = proximoDia(p.dia, p.hora);
+  document.getElementById('nsvc-fecha').value = proximoDia(p.dia, p.hora, p.minuto);
   renderCaracterChips(p.caracteres);
+  if (k === 'domingo-familia') {
+    const fechas = proximoDiaFamilia();
+    document.getElementById('nsvc-fecha').value = fechas.domingo;
+    toast('Día de Familia habilitado — Próximo culto (martes) se habilitará al guardar');
+  } else if (p.toast) {
+    toast(p.toast);
+  }
 }
 
 function abrirNuevoServicio() {
@@ -1535,42 +1714,11 @@ function editarServicio(s) {
 async function guardarServicio() {
   const nombre = document.getElementById('nsvc-nombre').value.trim();
   const fecha = document.getElementById('nsvc-fecha').value;
+  const plantilla = document.getElementById('nsvc-plantilla').value;
   const resp = document.getElementById('nsvc-responsable').value;
   const caracter = S.caracteresSeleccionados.join(', ');
   if (!nombre) { toast('Ingresa el nombre', true); return; }
   if (!fecha) { toast('Selecciona fecha y hora', true); return; }
-  const fechaSvc = new Date(fecha);
-  const ahora = new Date();
-  const dia = fechaSvc.getDay();
-  const hora = fechaSvc.getHours();
-  const minuto = fechaSvc.getMinutes();
-  const horaSvcMin = hora * 60 + minuto;
-
-  // Solo martes(2), jueves(4), sabado(6) y domingo(0)
-  if (dia !== 0 && dia !== 2 && dia !== 4 && dia !== 6) {
-    toast('Los servicios solo pueden ser los martes, jueves, sábados y domingos', true); return;
-  }
-
-  // Servicio martes, jueves o sabado a las 6:30 PM
-  if (dia !== 0 && (horaSvcMin < 18 * 60 + 30 || horaSvcMin > 20 * 60 + 30)) {
-    toast('Solo puedes crear servicios a las 6:30 PM (martes, jueves y sábado)', true); return;
-  }
-
-  // Servicio domingo manana: 9:00 AM a 11:30 AM
-  if (dia === 0 && horaSvcMin >= 9 * 60 && horaSvcMin <= 11 * 60 + 30) {
-    const ventanaAbre = new Date(fechaSvc);
-    ventanaAbre.setHours(9, 0, 0, 0);
-    if (ahora < ventanaAbre) { toast('El servicio dominical de mañana se puede crear a partir de las 9:00 AM', true); return; }
-  }
-  // Servicio domingo tarde: 6:00 PM a 7:30 PM
-  else if (dia === 0 && horaSvcMin >= 18 * 60 && horaSvcMin <= 19 * 60 + 30) {
-    const ventanaAbre = new Date(fechaSvc);
-    ventanaAbre.setHours(18, 0, 0, 0);
-    if (ahora < ventanaAbre) { toast('El servicio dominical de tarde se puede crear a partir de las 6:00 PM', true); return; }
-  }
-  else {
-    toast('Los servicios dominicales solo pueden ser a las 9:00 AM o 6:00 PM', true); return;
-  }
   const payload = { nombre, caracter: caracter || null, fecha_hora: new Date(fecha).toISOString(), estado: 'programado', responsable_id: resp || null };
   try {
     if (S.editandoServicio) {
@@ -1579,6 +1727,19 @@ async function guardarServicio() {
     } else {
       await api('POST', '/servicios', payload);
       toast('Servicio creado');
+      // Si es Día de Familia, crear automáticamente el próximo martes
+      if (plantilla === 'domingo-familia') {
+        const fechas = proximoDiaFamilia();
+        const payloadMartes = {
+          nombre: 'Culto Martes — Enseñanza y oración',
+          caracter: 'Enseñanza, Oración',
+          fecha_hora: new Date(fechas.martes).toISOString(),
+          estado: 'programado',
+          responsable_id: resp || null
+        };
+        await api('POST', '/servicios', payloadMartes);
+        toast('Culto del martes creado automáticamente');
+      }
     }
     goBack();
     setTimeout(() => cargarServicios(), 400);
@@ -1597,8 +1758,8 @@ async function cargarHistorial() {
 
 function mockHist() {
   return [
-    { id: 'h1', servicio_id: 's1', servicios: { nombre: 'Culto Evangelístico', fecha_hora: new Date(Date.now() - 7 * 86400000).toISOString(), caracter: 'Evangelístico' }, adultos: 158, ninos: 28, amigos: 17, total: 203, notas: 'Visita pastor invitado', registrado_por_nombre: 'Juan Pérez' },
-    { id: 'h2', servicio_id: 's2', servicios: { nombre: 'Escuela Dominical', fecha_hora: new Date(Date.now() - 14 * 86400000).toISOString(), caracter: 'Escuela dominical' }, adultos: 130, ninos: 25, amigos: 16, total: 171, notas: null, registrado_por_nombre: 'María López' }
+    { id: 'h1', servicio_id: 's1', servicios: { nombre: 'Culto Evangelístico', fecha_hora: new Date(Date.now() - 7 * 86400000).toISOString(), caracter: 'Evangelístico' }, caballeros: 75, damas: 83, adol_varones: 0, adol_damas: 0, ninos_varones: 0, ninos_damas: 0, total: 158, notas: 'Visita pastor invitado', registrado_por_nombre: 'Juan Pérez' },
+    { id: 'h2', servicio_id: 's2', servicios: { nombre: 'Escuela Dominical', fecha_hora: new Date(Date.now() - 14 * 86400000).toISOString(), caracter: 'Escuela dominical' }, caballeros: 60, damas: 70, adol_varones: 8, adol_damas: 10, ninos_varones: 12, ninos_damas: 13, total: 173, notas: null, registrado_por_nombre: 'María López' }
   ];
 }
 
@@ -1621,9 +1782,12 @@ function renderHistorial(lista) {
         <span class="hist-total-badge">${r.total ?? 0}</span>
       </div>
       <div class="hist-stats">
-        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--primary)">${r.adultos ?? 0}</div><div class="hist-stat-lbl">Adultos</div></div>
-        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--blue)">${r.ninos ?? 0}</div><div class="hist-stat-lbl">Niños</div></div>
-        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--amber)">${r.amigos ?? 0}</div><div class="hist-stat-lbl">Amigos</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--primary)">${r.caballeros ?? 0}</div><div class="hist-stat-lbl">Cab.</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--pink)">${r.damas ?? 0}</div><div class="hist-stat-lbl">Dam.</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--purple)">${r.adol_varones ?? 0}</div><div class="hist-stat-lbl">Adol.V</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--purple)">${r.adol_damas ?? 0}</div><div class="hist-stat-lbl">Adol.M</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--blue)">${r.ninos_varones ?? 0}</div><div class="hist-stat-lbl">Niños.V</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--blue)">${r.ninos_damas ?? 0}</div><div class="hist-stat-lbl">Niñas.M</div></div>
       </div>
       ${r.notas ? `<div class="hist-notas">"${r.notas}"</div>` : ''}
       <div class="hist-meta"><span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> ${portero}</span>${caracter ? `<span class="hist-caracter">${caracter}</span>` : ''}</div>
@@ -1642,21 +1806,27 @@ function renderHistorial(lista) {
 function abrirEditarHist(r) {
   S.editandoHistId = r.id;
   S.editandoSvcId = r.servicio_id || r.servicios?.id;
-  document.getElementById('edit-adultos').value = r.adultos ?? 0;
-  document.getElementById('edit-ninos').value = r.ninos ?? 0;
-  document.getElementById('edit-amigos').value = r.amigos ?? 0;
+  document.getElementById('edit-caballeros').value = r.caballeros ?? 0;
+  document.getElementById('edit-damas').value = r.damas ?? 0;
+  document.getElementById('edit-adol_varones').value = r.adol_varones ?? 0;
+  document.getElementById('edit-adol_damas').value = r.adol_damas ?? 0;
+  document.getElementById('edit-ninos_varones').value = r.ninos_varones ?? 0;
+  document.getElementById('edit-ninos_damas').value = r.ninos_damas ?? 0;
   document.getElementById('edit-notas').value = r.notas || '';
   abrirModal('modal-editar');
 }
 
 async function guardarEdicion() {
-  const adultos = parseInt(document.getElementById('edit-adultos').value) || 0;
-  const ninos = parseInt(document.getElementById('edit-ninos').value) || 0;
-  const amigos = parseInt(document.getElementById('edit-amigos').value) || 0;
+  const caballeros = parseInt(document.getElementById('edit-caballeros').value) || 0;
+  const damas = parseInt(document.getElementById('edit-damas').value) || 0;
+  const adol_varones = parseInt(document.getElementById('edit-adol_varones').value) || 0;
+  const adol_damas = parseInt(document.getElementById('edit-adol_damas').value) || 0;
+  const ninos_varones = parseInt(document.getElementById('edit-ninos_varones').value) || 0;
+  const ninos_damas = parseInt(document.getElementById('edit-ninos_damas').value) || 0;
   const notas = document.getElementById('edit-notas').value;
-  try { if (S.editandoSvcId) await api('POST', `/asistencia/${S.editandoSvcId}`, { adultos, ninos, amigos, notas: notas || undefined }); } catch {}
+  try { if (S.editandoSvcId) await api('POST', `/asistencia/${S.editandoSvcId}`, { caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, notas: notas || undefined }); } catch {}
   const idx = S.historialData.findIndex(r => r.id === S.editandoHistId);
-  if (idx !== -1) S.historialData[idx] = { ...S.historialData[idx], adultos, ninos, amigos, notas, total: adultos + ninos + amigos };
+  if (idx !== -1) S.historialData[idx] = { ...S.historialData[idx], caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, notas, total: caballeros + damas + adol_varones + adol_damas + ninos_varones + ninos_damas };
   renderHistorial(S.historialData);
   cerrarModal('modal-editar');
   toast('Registro actualizado');
@@ -1685,15 +1855,18 @@ async function cargarGrafica(periodo) {
     data: {
       labels,
       datasets: [
-        { label: 'Adultos', data: rev.map(r => r.adultos || 0), backgroundColor: '#00519Acc', borderRadius: 4 },
-        { label: 'Niños', data: rev.map(r => r.ninos || 0), backgroundColor: '#1E88D4cc', borderRadius: 4 },
-        { label: 'Amigos', data: rev.map(r => r.amigos || 0), backgroundColor: '#BA7517cc', borderRadius: 4 }
+        { label: 'Caballeros', data: rev.map(r => r.caballeros || 0), backgroundColor: '#00519Acc', borderRadius: 4 },
+        { label: 'Damas', data: rev.map(r => r.damas || 0), backgroundColor: '#C41E6Acc', borderRadius: 4 },
+        { label: 'Adol.V', data: rev.map(r => r.adol_varones || 0), backgroundColor: '#6E41B0cc', borderRadius: 4 },
+        { label: 'Adol.M', data: rev.map(r => r.adol_damas || 0), backgroundColor: '#9B6DC6cc', borderRadius: 4 },
+        { label: 'Niños.V', data: rev.map(r => r.ninos_varones || 0), backgroundColor: '#1E88D4cc', borderRadius: 4 },
+        { label: 'Niñas.M', data: rev.map(r => r.ninos_damas || 0), backgroundColor: '#5CB8E0cc', borderRadius: 4 }
       ]
     },
     options: {
       responsive: true,
       plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } }, tooltip: { mode: 'index', intersect: false } } },
-      scales: { x: { stacked: true, ticks: { font: { size: 10 }, maxRotation: 45 }, grid: { display: false } }, y: { stacked: true, beginAtZero: true } }
+      scales: { x: { stacked: false, ticks: { font: { size: 10 }, maxRotation: 45 }, grid: { display: false } }, y: { stacked: false, beginAtZero: true } }
     }
   });
   if (regs.length > 0) {
