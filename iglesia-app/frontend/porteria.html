@@ -1286,6 +1286,7 @@ const S = {
   graficaInstance: null,
   historialData: [],
   miembros: [],
+  ujieres: [],
   caracteresSeleccionados: [],
   caracteresCustom: [],
   eliminarTipo: null,
@@ -1370,6 +1371,25 @@ async function cargarMiembros() {
       const o = document.createElement('option');
       o.value = m.id;
       o.textContent = m.nombre + ' ' + m.apellido;
+      sel.appendChild(o);
+    });
+  });
+}
+
+async function cargarUjieres() {
+  try {
+    const d = await api('GET', '/ujieres');
+    S.ujieres = Array.isArray(d) ? d : [];
+  } catch {
+    S.ujieres = [];
+  }
+  ['reg-responsable', 'nsvc-responsable'].forEach(id => {
+    const sel = document.getElementById(id);
+    while (sel.options.length > 1) sel.remove(1);
+    S.ujieres.forEach(u => {
+      const o = document.createElement('option');
+      o.value = u.id;
+      o.textContent = u.nombre_completo;
       sel.appendChild(o);
     });
   });
@@ -1918,6 +1938,7 @@ async function descargarEstadisticas() {
 
 cargarServicios();
 cargarMiembros();
+cargarUjieres();
 renderCaracterChips([]);
 
 try {

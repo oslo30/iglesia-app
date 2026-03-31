@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { errorHandler } from './middlewares/errorHandler.js';
 import serviciosRoutes  from './modules/operacion/servicios/servicios.routes.js';
 import asistenciaRoutes from './modules/operacion/asistencia/asistencia.routes.js';
+import ujieresRoutes   from './modules/operacion/ujieres/ujieres.routes.js';
 import asientosRoutes   from './modules/operacion/asientos/asientos.routes.js';
 import miembrosRoutes   from './modules/pastoral/miembros/miembros.routes.js';
 import authRoutes       from './modules/auth/auth.routes.js';
@@ -41,6 +42,7 @@ app.use('/api/auth', authRoutes);
 // Rutas API (protegidas en cada módulo)
 app.use('/api/servicios',  serviciosRoutes);
 app.use('/api/asistencia', asistenciaRoutes);
+app.use('/api/ujieres',   ujieresRoutes);
 app.use('/api/asientos',   asientosRoutes);
 app.use('/api/miembros',   miembrosRoutes);
 app.use('/api/ingresos',   ingresosRoutes);
