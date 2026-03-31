@@ -1637,7 +1637,7 @@ function bloquearInputsPorFecha(servicio) {
   const isFamilia = nombre.includes('Familia') || caracter.includes('Familia');
   const isDomingoAM = nombre.includes('Escuela Dominical') || (fechaSvc.getDay() === 0 && fechaSvc.getHours() < 12);
   const isEvangelistico = nombre.includes('Evangelístico');
-  let bloquear = true;
+  let bloquear = false; // DESBLOQUEADO para pruebas — volver a true cuando terminemos
   let msg = 'La asistencia se puede registrar a partir de la fecha y hora del servicio';
   if (isFamilia) {
     bloquear = true;
