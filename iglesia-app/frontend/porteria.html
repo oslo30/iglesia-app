@@ -1515,16 +1515,6 @@ async function cargarMiembros() {
       { id: 'm3', nombre: 'Carlos', apellido: 'García' }
     ];
   }
-  ['reg-responsable', 'nsvc-responsable'].forEach(id => {
-    const sel = document.getElementById(id);
-    while (sel.options.length > 1) sel.remove(1);
-    S.miembros.forEach(m => {
-      const o = document.createElement('option');
-      o.value = m.id;
-      o.textContent = m.nombre + ' ' + m.apellido;
-      sel.appendChild(o);
-    });
-  });
 }
 
 async function cargarUjieres() {
