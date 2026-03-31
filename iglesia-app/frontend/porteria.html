@@ -2021,7 +2021,7 @@ function renderHistorial(lista) {
           <div class="hist-card-title">${svc.nombre || 'Servicio'}</div>
           <div class="hist-card-date">${fecha} · ${hora}</div>
         </div>
-        <span class="hist-total-badge">${r.total ?? 0}</span>
+        <span class="hist-total-badge">${(r.total && r.total > 0) ? r.total : ((r.caballeros??0)+(r.damas??0)+(r.adol_varones??0)+(r.adol_damas??0)+(r.ninos_varones??0)+(r.ninos_damas??0)+(r.vm??0)+(r.vf??0)+(r.vm_adolescentes??0)+(r.vf_adolescentes??0)+(r.vm_ninos??0)+(r.vf_ninas??0))}</span>
       </div>
       <div class="hist-stats">
         <div class="hist-stat"><div class="hist-stat-val" style="color:var(--primary)">${r.caballeros ?? 0}</div><div class="hist-stat-lbl">Caballeros</div></div>
