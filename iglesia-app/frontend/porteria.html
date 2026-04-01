@@ -247,18 +247,6 @@
       padding: 0;
     }
 
-    #tabs-container {
-      display: flex;
-      overflow-x: hidden;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    #home-0, #home-1, #home-2 {
-      min-width: 100%;
-      scroll-snap-align: start;
-    }
-
     /* ── SECTION LABEL ── */
     .section-label {
       font-size: 11px;
@@ -1048,24 +1036,23 @@
     </div>
 
     <div class="tabs">
-      <button class="tab-item active" data-idx="0" onclick="homeTab(0,this)">Servicios</button>
-      <button class="tab-item" data-idx="1" onclick="homeTab(1,this)">Historial</button>
-      <button class="tab-item" data-idx="2" onclick="homeTab(2,this)">Estadísticas</button>
+      <button class="tab-item active" onclick="homeTab(0,this)">Servicios</button>
+      <button class="tab-item" onclick="homeTab(1,this)">Historial</button>
+      <button class="tab-item" onclick="homeTab(2,this)">Estadísticas</button>
     </div>
 
     <div class="content">
-      <div id="tabs-container">
-        <div id="home-0">
-          <div class="section-label">Servicios de hoy</div>
-          <div id="servicios-list">
-            <div class="loading"><div class="spinner"></div>Cargando...</div>
-          </div>
+      <div id="home-0">
+        <div class="section-label">Servicios de hoy</div>
+        <div id="servicios-list">
+          <div class="loading"><div class="spinner"></div>Cargando...</div>
         </div>
-        <div id="home-1" style="visibility:hidden;pointer-events:none">
-          <div id="historial-list"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
-        </div>
-        <div id="home-2" style="visibility:hidden;pointer-events:none">
-          <div class="chart-wrap" id="chart-wrap">
+      </div>
+      <div id="home-1" style="display:none">
+        <div id="historial-list"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+      <div id="home-2" style="display:none">
+        <div class="chart-wrap" id="chart-wrap">
             <div class="chart-title">Asistencia</div>
             <div class="chart-filter">
               <div class="chip active" onclick="filtroGrafica('semana',this)">Esta semana</div>
@@ -1076,7 +1063,6 @@
           </div>
           <div id="stats-resumen"></div>
         </div>
-      </div>
     </div>
 
     <button class="fab" id="fab-nuevo-servicio" onclick="abrirNuevoServicio()">+</button>
@@ -1391,32 +1377,13 @@ function goBack() {
 }
 
 function homeTab(i, el) {
-  [0, 1, 2].forEach(j => {
-    const home = document.getElementById('home-' + j);
-    home.style.visibility = j === i ? 'visible' : 'hidden';
-    home.style.pointerEvents = j === i ? 'auto' : 'none';
-  });
+  [0, 1, 2].forEach(j => document.getElementById('home-' + j).style.display = j === i ? 'block' : 'none');
   el.closest('.tabs').querySelectorAll('.tab-item').forEach((t, j) => t.classList.toggle('active', j === i));
   document.getElementById('fab-nuevo-servicio').style.display = i === 0 ? 'flex' : 'none';
   document.getElementById('fab-download').style.display = i === 1 ? 'flex' : 'none';
   if (i === 1) cargarHistorial();
   if (i === 2) cargarGrafica('semana');
-  document.getElementById('tabs-container').scrollLeft = i * window.innerWidth;
 }
-
-(function() {
-  let startX = 0;
-  const container = document.getElementById('tabs-container');
-  container.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
-  container.addEventListener('touchend', e => {
-    const delta = e.changedTouches[0].clientX - startX;
-    if (Math.abs(delta) < 50) return;
-    const current = document.querySelectorAll('.tab-item.active')[0];
-    const idx = parseInt(current.dataset.idx || '0');
-    if (delta < 0 && idx < 2) homeTab(idx + 1, document.querySelectorAll('.tab-item')[idx + 1]);
-    if (delta > 0 && idx > 0) homeTab(idx - 1, document.querySelectorAll('.tab-item')[idx - 1]);
-  }, { passive: true });
-})();
 
 async function api(method, path, body) {
   const ctrl = new AbortController();
