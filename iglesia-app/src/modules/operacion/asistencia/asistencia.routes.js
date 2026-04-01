@@ -106,53 +106,49 @@ router.get('/estadisticas', async (req, res, next) => {
 // GET /api/asistencia/dashboard — datos para dashboard de estadísticas
 router.get('/dashboard', async (req, res, next) => {
   try {
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
+    const ahora = new Date();
+    const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
     const manana = new Date(hoy);
     manana.setDate(manana.getDate() + 1);
     const inicioSemana = new Date(hoy);
     inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay());
     const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
 
-    // Asistencia hoy - filtrar por fecha_hora del servicio
-    const { data: hoyData } = await supabase
+    // Obtener todos los registros con datos del servicio
+    const { data: todosRegistros } = await supabase
       .from('registros_asistencia')
-      .select('*, servicios(fecha_hora)')
-      .gte('servicios.fecha_hora', hoy.toISOString())
-      .lt('servicios.fecha_hora', manana.toISOString());
+      .select('total, caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, servicios(fecha_hora, nombre)')
+      .order('created_at', { ascending: false });
 
-    const asistenciaHoy = hoyData?.reduce((s, r) => s + (r.total || 0), 0) || 0;
+    // Filtrar y calcular en JavaScript
+    const filtrar = (min, max) => (todosRegistros || []).filter(r => {
+      const f = new Date(r.servicios?.fecha_hora);
+      return f >= min && f < max;
+    });
+
+    const sumar = (arr) => arr.reduce((s, r) => s + (r.total || 0), 0);
+
+    // Asistencia hoy
+    const regsHoy = filtrar(hoy, manana);
+    const asistenciaHoy = sumar(regsHoy);
 
     // Asistencia semana
-    const { data: semanaData } = await supabase
-      .from('registros_asistencia')
-      .select('total, servicios(fecha_hora)')
-      .gte('servicios.fecha_hora', inicioSemana.toISOString());
-    const asistenciaSemana = semanaData?.reduce((s, r) => s + (r.total || 0), 0) || 0;
+    const regsSemana = filtrar(inicioSemana, new Date());
+    const asistenciaSemana = sumar(regsSemana);
 
     // Asistencia mes
-    const { data: mesData } = await supabase
-      .from('registros_asistencia')
-      .select('total, servicios(fecha_hora)')
-      .gte('servicios.fecha_hora', inicioMes.toISOString());
-    const asistenciaMes = mesData?.reduce((s, r) => s + (r.total || 0), 0) || 0;
+    const regsMes = filtrar(inicioMes, new Date());
+    const asistenciaMes = sumar(regsMes);
 
-    // Último servicio para comparación
-    const { data: ultimo } = await supabase
-      .from('registros_asistencia')
-      .select('total')
-      .order('created_at', { ascending: false })
-      .limit(1).maybeSingle();
+    // Último servicio
+    const ultimo = (todosRegistros || [])[0];
+    const vsUltimo = ultimo?.total || 0;
 
-    // Tendencia semanal (comparar esta semana vs semana pasada)
+    // Tendencia semanal
     const haceSemana = new Date(inicioSemana);
     haceSemana.setDate(haceSemana.getDate() - 7);
-    const { data: semanaPasadaData } = await supabase
-      .from('registros_asistencia')
-      .select('total, servicios(fecha_hora)')
-      .gte('servicios.fecha_hora', haceSemana.toISOString())
-      .lt('servicios.fecha_hora', inicioSemana.toISOString());
-    const asistenciaSemanaPasada = semanaPasadaData?.reduce((s, r) => s + (r.total || 0), 0) || 0;
+    const regsSemanaPasada = filtrar(haceSemana, inicioSemana);
+    const asistenciaSemanaPasada = sumar(regsSemanaPasada);
     const tendenciaSemana = asistenciaSemanaPasada > 0
       ? Math.round(((asistenciaSemana - asistenciaSemanaPasada) / asistenciaSemanaPasada) * 100)
       : 0;
@@ -160,33 +156,26 @@ router.get('/dashboard', async (req, res, next) => {
     // Tendencia mensual
     const haceMes = new Date(inicioMes);
     haceMes.setMonth(haceMes.getMonth() - 1);
-    const { data: mesPasadoData } = await supabase
-      .from('registros_asistencia')
-      .select('total, servicios(fecha_hora)')
-      .gte('servicios.fecha_hora', haceMes.toISOString())
-      .lt('servicios.fecha_hora', inicioMes.toISOString());
-    const asistenciaMesPasado = mesPasadoData?.reduce((s, r) => s + (r.total || 0), 0) || 0;
+    const regsMesPasado = filtrar(haceMes, inicioMes);
+    const asistenciaMesPasado = sumar(regsMesPasado);
     const tendenciaMes = asistenciaMesPasado > 0
       ? Math.round(((asistenciaMes - asistenciaMesPasado) / asistenciaMesPasado) * 100)
       : 0;
 
-    // Por categoría (últimos registros)
-    const { data: ultimosRegistros } = await supabase
-      .from('registros_asistencia')
-      .select('caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, visitas')
-      .order('created_at', { ascending: false })
-      .limit(50);
-
+    // Por categoría (últimos 50 registros)
+    const ultimosRegistros = (todosRegistros || []).slice(0, 50);
     let porCategoria = { caballeros: 0, damas: 0, jovenes: 0, ninos: 0, visitas: 0 };
-    ultimosRegistros?.forEach(r => {
+    ultimosRegistros.forEach(r => {
       porCategoria.caballeros += r.caballeros || 0;
       porCategoria.damas += r.damas || 0;
       porCategoria.jovenes += (r.adol_varones || 0) + (r.adol_damas || 0);
       porCategoria.ninos += (r.ninos_varones || 0) + (r.ninos_damas || 0);
-      porCategoria.visitas += r.visitas || 0;
+      porCategoria.visitas += r.total - (r.caballeros || 0) - (r.damas || 0) - (r.adol_varones || 0) - (r.adol_damas || 0) - (r.ninos_varones || 0) - (r.ninos_damas || 0) > 0 ? r.total - (r.caballeros || 0) - (r.damas || 0) - (r.adol_varones || 0) - (r.adol_damas || 0) - (r.ninos_varones || 0) - (r.ninos_damas || 0) : 0;
     });
-    const totalCategoria = Object.values(porCategoria).reduce((s, v) => s + v, 0) || 1;
+    // Fix visitas: si es negativo, poner 0
+    if (porCategoria.visitas < 0) porCategoria.visitas = 0;
 
+    const totalCategoria = Object.values(porCategoria).reduce((s, v) => s + v, 0) || 1;
     porCategoria = {
       caballeros: { cantidad: porCategoria.caballeros, porcentaje: Math.round(porCategoria.caballeros / totalCategoria * 100) },
       damas: { cantidad: porCategoria.damas, porcentaje: Math.round(porCategoria.damas / totalCategoria * 100) },
@@ -198,31 +187,19 @@ router.get('/dashboard', async (req, res, next) => {
     // Tendencia mensual (últimos 6 meses)
     const hace6Meses = new Date(hoy);
     hace6Meses.setMonth(hace6Meses.getMonth() - 6);
-    const { data: tendencia6Meses } = await supabase
-      .from('registros_asistencia')
-      .select('total, servicios(fecha_hora)')
-      .gte('servicios.fecha_hora', hace6Meses.toISOString())
-      .order('servicios.fecha_hora', { ascending: true });
-
     const mesesNombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
     const tendenciaMensual = {};
-    tendencia6Meses?.forEach(r => {
-      const d = new Date(r.servicios?.fecha_hora);
-      if (d && !isNaN(d)) {
-        const mes = mesesNombres[d.getMonth()];
+    (todosRegistros || []).forEach(r => {
+      const f = new Date(r.servicios?.fecha_hora);
+      if (f >= hace6Meses) {
+        const mes = mesesNombres[f.getMonth()];
         tendenciaMensual[mes] = (tendenciaMensual[mes] || 0) + (r.total || 0);
       }
     });
 
     // Por servicio
-    const { data: porServicio } = await supabase
-      .from('registros_asistencia')
-      .select('total, servicios(nombre, fecha_hora)')
-      .order('servicios.fecha_hora', { ascending: false })
-      .limit(50);
-
     const serviciosAgrupados = {};
-    porServicio?.forEach(r => {
+    (todosRegistros || []).forEach(r => {
       const nombre = r.servicios?.nombre || 'Otro';
       const base = nombre.split(' ')[0];
       serviciosAgrupados[base] = (serviciosAgrupados[base] || 0) + (r.total || 0);
@@ -235,7 +212,7 @@ router.get('/dashboard', async (req, res, next) => {
         mes: asistenciaMes,
         tendenciaSemana,
         tendenciaMes,
-        vsUltimo: ultimo?.total || 0
+        vsUltimo
       },
       porCategoria,
       tendenciaMensual,
