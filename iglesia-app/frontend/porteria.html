@@ -97,16 +97,6 @@
       position: relative;
     }
 
-    .user-greeting {
-      position: absolute;
-      top: 36px;
-      left: 92px;
-      font-size: 13px;
-      color: var(--text);
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
     .header-left {
       display: flex;
       align-items: center;
@@ -200,13 +190,6 @@
       font-size: 11px;
       color: var(--text3);
       padding-bottom: 12px;
-    }
-
-    #user-greeting {
-      font-size: 13px;
-      color: var(--text);
-      font-weight: 600;
-      white-space: nowrap;
     }
 
     #user-info {
@@ -1028,7 +1011,7 @@
             <img src="/logo.png" alt="Logo">
           </div>
           <div class="header-info">
-            <div class="header-title">Ujieres</div>
+            <div class="header-title" id="header-title">Ujieres</div>
             <div class="header-date" id="fecha-hoy"></div>
           </div>
         </div>
@@ -1041,8 +1024,6 @@
           </span>
           <button class="btn-exit" onclick="logout()">Salir</button>
         </div>
-        <div id="user-greeting" class="user-greeting"></div>
-        <div class="header-user" id="user-info" style="display:none"></div>
       </div>
     </div>
 
@@ -2149,7 +2130,7 @@ try {
   const rol = perfil.rol || 'portero';
   const ROLES = { admin: 'Administrador', pastor: 'Pastor', portero: 'Ujier', tesorero: 'Tesorero' };
   if (nombre) {
-    document.getElementById('user-greeting').textContent = `Dtb ${nombre}`;
+    document.getElementById('header-title').textContent = `Dtb ${nombre}`;
     const rolLabel = ROLES[rol] || 'Ujier';
     document.getElementById('user-info').textContent = rolLabel;
     document.getElementById('user-info').style.display = 'block';
