@@ -887,6 +887,152 @@
     .hist-actions { display: flex; gap: 8px }
     .hist-actions .btn-sm { flex: 1; text-align: center }
 
+    /* ── DASHBOARD STATS ── */
+    .stats-kpi-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stats-kpi {
+      flex: 1;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 14px 10px;
+      font-size: 11px;
+      color: var(--text2);
+      text-align: center;
+      box-shadow: var(--shadow-card);
+    }
+
+    .stats-kpi.primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .stats-kpi strong {
+      font-size: 20px;
+      display: block;
+      margin: 4px 0;
+    }
+
+    .stats-kpi .kpi-var {
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
+    .stats-kpi .kpi-var.up { color: #2ECC71; }
+    .stats-kpi .kpi-var.down { color: #E74C3C; }
+    .stats-kpi.primary .kpi-var { color: rgba(255,255,255,0.8); }
+    .stats-kpi.primary .kpi-var.up,
+    .stats-kpi.primary .kpi-var.down { color: rgba(255,255,255,0.9); }
+
+    .stats-section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .stats-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .stats-donut-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .stats-donut-wrap canvas {
+      flex: 0 0 130px;
+      max-width: 130px;
+    }
+
+    .stats-categorias-list {
+      flex: 1;
+    }
+
+    .cat-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .cat-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .cat-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cat-name {
+      flex: 1;
+      color: var(--text2);
+      font-size: 11px;
+    }
+
+    .cat-num {
+      font-weight: 600;
+      font-size: 11px;
+      color: var(--text);
+    }
+
+    .cat-bar-wrap {
+      flex: 1;
+      height: 5px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .cat-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .stats-insight {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg2);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .stats-insight:last-child { margin-bottom: 0; }
+
+    .insight-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .stats-section-insights {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-card);
+    }
+
     /* ── CHART ── */
     .chart-wrap {
       background: var(--surface);
@@ -1052,16 +1198,9 @@
         <div id="historial-list"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
       </div>
       <div id="home-2" style="display:none">
-        <div class="chart-wrap" id="chart-wrap">
-          <div class="chart-title">Asistencia</div>
-          <div class="chart-filter">
-            <div class="chip active" onclick="filtroGrafica('semana',this)">Esta semana</div>
-            <div class="chip" onclick="filtroGrafica('mes',this)">Este mes</div>
-            <div class="chip" onclick="filtroGrafica('todo',this)">Todo</div>
-          </div>
-          <canvas id="grafica-unica" height="180"></canvas>
+        <div id="dashboard-container">
+          <div class="loading"><div class="spinner"></div>Cargando estadísticas...</div>
         </div>
-        <div id="stats-resumen"></div>
       </div>
     </div>
 
@@ -1382,7 +1521,7 @@ function homeTab(i, el) {
   document.getElementById('fab-nuevo-servicio').style.display = i === 0 ? 'flex' : 'none';
   document.getElementById('fab-download').style.display = i === 1 ? 'flex' : 'none';
   if (i === 1) cargarHistorial();
-  if (i === 2) cargarGrafica('semana');
+  if (i === 2) cargarDashboard();
 }
 
 async function api(method, path, body) {
@@ -2018,6 +2157,150 @@ function filtroGrafica(p, el) {
     el.classList.add('active');
   }
   cargarGrafica(p);
+}
+
+let _dashboardCache = null;
+async function cargarDashboard() {
+  const container = document.getElementById('dashboard-container');
+  if (!container) return;
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando estadísticas...</div>';
+  try {
+    const d = await api('GET', '/asistencia/dashboard');
+    _dashboardCache = d;
+    container.innerHTML = `
+      <div class="stats-kpi-row">
+        <div class="stats-kpi primary">
+          Asistencia Hoy
+          <strong>${(d.resumen?.hoy || 0).toLocaleString()}</strong>
+          ${d.resumen?.vsUltimo ? `<span class="kpi-var">${d.resumen.vsUltimo > d.resumen.hoy ? '↓' : '↑'} ${Math.abs(d.resumen.vsUltimo - d.resumen.hoy)} vs último</span>` : ''}
+        </div>
+        <div class="stats-kpi">
+          Esta Semana
+          <strong>${(d.resumen?.semana || 0).toLocaleString()}</strong>
+          <span class="kpi-var ${d.resumen?.tendenciaSemana >= 0 ? 'up' : 'down'}">${d.resumen?.tendenciaSemana >= 0 ? '↑' : '↓'} ${Math.abs(d.resumen?.tendenciaSemana || 0)}%</span>
+        </div>
+        <div class="stats-kpi">
+          Este Mes
+          <strong>${(d.resumen?.mes || 0).toLocaleString()}</strong>
+          <span class="kpi-var ${d.resumen?.tendenciaMes >= 0 ? 'up' : 'down'}">${d.resumen?.tendenciaMes >= 0 ? '↑' : '↓'} ${Math.abs(d.resumen?.tendenciaMes || 0)}%</span>
+        </div>
+      </div>
+
+      <div class="stats-section">
+        <div class="stats-section-title">Asistencia por Categoría</div>
+        <div class="stats-donut-wrap">
+          <canvas id="grafica-donut" height="130"></canvas>
+          <div class="stats-categorias-list" id="categorias-list"></div>
+        </div>
+      </div>
+
+      <div class="stats-section">
+        <div class="stats-section-title">Tendencia Mensual</div>
+        <canvas id="grafica-tendencia" height="140"></canvas>
+      </div>
+
+      <div class="stats-section">
+        <div class="stats-section-title">Asistencia por Servicio</div>
+        <canvas id="grafica-servicio" height="140"></canvas>
+      </div>
+
+      <div class="stats-section-insights" id="stats-insights"></div>
+    `;
+
+    // Donut chart
+    const cat = d.porCategoria || {};
+    const catColors = { caballeros: '#00519A', damas: '#C41E6A', jovenes: '#6E41B0', ninos: '#1E88D4', visitas: '#2ECC71' };
+    const catLabels = { caballeros: 'Caballeros', damas: 'Damas', jovenes: 'Jóvenes', ninos: 'Niños', visitas: 'Visitas' };
+    const catData = Object.entries(cat).filter(([k,v]) => v?.cantidad > 0);
+
+    new Chart(document.getElementById('grafica-donut'), {
+      type: 'doughnut',
+      data: {
+        labels: catData.map(([k]) => catLabels[k] || k),
+        datasets: [{ data: catData.map(([,v]) => v.cantidad), backgroundColor: catData.map(([k]) => catColors[k] || '#999') }]
+      },
+      options: {
+        responsive: true,
+        cutout: '65%',
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } } }
+      }
+    });
+
+    // Categorías list
+    const listEl = document.getElementById('categorias-list');
+    if (listEl) {
+      listEl.innerHTML = catData.map(([k, v]) => `
+        <div class="cat-item">
+          <span class="cat-dot" style="background:${catColors[k] || '#999'}"></span>
+          <div class="cat-info">
+            <span class="cat-name">${catLabels[k] || k}</span>
+            <span class="cat-num">${v.cantidad} · ${v.porcentaje}%</span>
+          </div>
+          <div class="cat-bar-wrap"><div class="cat-bar" style="width:${v.porcentaje}%;background:${catColors[k] || '#999'}"></div></div>
+        </div>
+      `).join('');
+    }
+
+    // Tendencia mensual
+    const trend = d.tendenciaMensual || {};
+    const trendLabels = Object.keys(trend);
+    const trendData = Object.values(trend);
+    new Chart(document.getElementById('grafica-tendencia'), {
+      type: 'line',
+      data: {
+        labels: trendLabels,
+        datasets: [{
+          label: 'Asistencia',
+          data: trendData,
+          borderColor: '#00519A',
+          backgroundColor: 'rgba(0,81,154,0.1)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#00519A'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+
+    // Por servicio
+    const svc = d.porServicio || {};
+    const svcLabels = Object.keys(svc);
+    const svcData = Object.values(svc);
+    const svcColors = svcLabels.map((_, i) => ['#00519A','#C41E6A','#6E41B0','#1E88D4','#2ECC71','#F39C12'][i % 6]);
+    new Chart(document.getElementById('grafica-servicio'), {
+      type: 'bar',
+      data: {
+        labels: svcLabels,
+        datasets: [{ data: svcData, backgroundColor: svcColors, borderRadius: 6 }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+
+    // Insights
+    const insightsEl = document.getElementById('stats-insights');
+    if (insightsEl && d.insights && d.insights.length > 0) {
+      insightsEl.innerHTML = '<div class="stats-section-title">Insights</div>' + d.insights.map(i => `<div class="stats-insight">${i.icon} ${i.text}</div>`).join('');
+    } else if (insightsEl) {
+      insightsEl.style.display = 'none';
+    }
+  } catch (e) {
+    container.innerHTML = '<div class="error-msg show">Error cargando estadísticas</div>';
+  }
 }
 
 async function cargarGrafica(periodo) {
