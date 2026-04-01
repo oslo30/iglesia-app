@@ -2070,20 +2070,6 @@ async function cargarGrafica(periodo) {
       scales: { x: { stacked: false, ticks: { font: { size: 10 }, maxRotation: 45 }, grid: { display: false } }, y: { stacked: false, beginAtZero: true } }
     }
   });
-
-  if (regs.length > 0) {
-    const fels = rev.map(r => (r.caballeros||0)+(r.damas||0)+(r.adol_varones||0)+(r.adol_damas||0)+(r.ninos_varones||0)+(r.ninos_damas||0));
-    const viss = rev.map(r => (r.vm||0)+(r.vf||0)+(r.vm_adolescentes||0)+(r.vf_adolescentes||0)+(r.vm_ninos||0)+(r.vf_ninas||0));
-    const promF = Math.round(fels.reduce((a,b)=>a+b,0)/fels.length);
-    const promV = Math.round(viss.reduce((a,b)=>a+b,0)/viss.length);
-    document.getElementById('stats-resumen').innerHTML =
-      `<div class="hist-stats">
-        <div class="hist-stat" style="background:var(--primary-l)"><div class="hist-stat-val">${promF}</div><div class="hist-stat-lbl">Prom.Feligreses</div></div>
-        <div class="hist-stat" style="background:var(--green-l)"><div class="hist-stat-val" style="color:var(--green)">${promV}</div><div class="hist-stat-lbl">Prom.Visitantes</div></div>
-        <div class="hist-stat" style="background:var(--surface);border:1px solid var(--border)"><div class="hist-stat-val" style="color:var(--primary)">${Math.max(...fels)}</div><div class="hist-stat-lbl">Max.Feligreses</div></div>
-        <div class="hist-stat" style="background:var(--surface);border:1px solid var(--border)"><div class="hist-stat-val" style="color:var(--green)">${Math.max(...viss)}</div><div class="hist-stat-lbl">Max.Visitantes</div></div>
-      </div>`;
-  }
 }
 
 async function descargarRegistro() {
