@@ -103,6 +103,146 @@ router.get('/estadisticas', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+// GET /api/asistencia/dashboard — datos para dashboard de estadísticas
+router.get('/dashboard', async (req, res, next) => {
+  try {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const manana = new Date(hoy);
+    manana.setDate(manana.getDate() + 1);
+    const inicioSemana = new Date(hoy);
+    inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay());
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+
+    // Asistencia hoy
+    const { data: hoyData } = await supabase
+      .from('registros_asistencia')
+      .select('*, servicios(nombre, fecha_hora)')
+      .gte('created_at', hoy.toISOString())
+      .lt('created_at', manana.toISOString());
+
+    const asistenciaHoy = hoyData?.reduce((s, r) => s + (r.total || 0), 0) || 0;
+
+    // Asistencia semana
+    const { data: semanaData } = await supabase
+      .from('registros_asistencia')
+      .select('total')
+      .gte('created_at', inicioSemana.toISOString());
+    const asistenciaSemana = semanaData?.reduce((s, r) => s + (r.total || 0), 0) || 0;
+
+    // Asistencia mes
+    const { data: mesData } = await supabase
+      .from('registros_asistencia')
+      .select('total')
+      .gte('created_at', inicioMes.toISOString());
+    const asistenciaMes = mesData?.reduce((s, r) => s + (r.total || 0), 0) || 0;
+
+    // Último servicio para comparación
+    const { data: ultimo } = await supabase
+      .from('registros_asistencia')
+      .select('total')
+      .order('created_at', { ascending: false })
+      .limit(1).maybeSingle();
+
+    // Tendencia semanal (comparar esta semana vs semana pasada)
+    const haceSemana = new Date(inicioSemana);
+    haceSemana.setDate(haceSemana.getDate() - 7);
+    const { data: semanaPasadaData } = await supabase
+      .from('registros_asistencia')
+      .select('total')
+      .gte('created_at', haceSemana.toISOString())
+      .lt('created_at', inicioSemana.toISOString());
+    const asistenciaSemanaPasada = semanaPasadaData?.reduce((s, r) => s + (r.total || 0), 0) || 0;
+    const tendenciaSemana = asistenciaSemanaPasada > 0
+      ? Math.round(((asistenciaSemana - asistenciaSemanaPasada) / asistenciaSemanaPasada) * 100)
+      : 0;
+
+    // Tendencia mensual
+    const haceMes = new Date(inicioMes);
+    haceMes.setMonth(haceMes.getMonth() - 1);
+    const { data: mesPasadoData } = await supabase
+      .from('registros_asistencia')
+      .select('total')
+      .gte('created_at', haceMes.toISOString())
+      .lt('created_at', inicioMes.toISOString());
+    const asistenciaMesPasado = mesPasadoData?.reduce((s, r) => s + (r.total || 0), 0) || 0;
+    const tendenciaMes = asistenciaMesPasado > 0
+      ? Math.round(((asistenciaMes - asistenciaMesPasado) / asistenciaMesPasado) * 100)
+      : 0;
+
+    // Por categoría (último servicio)
+    const { data: ultimosRegistros } = await supabase
+      .from('registros_asistencia')
+      .select('caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, visitas')
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    let porCategoria = { caballeros: 0, damas: 0, jovenes: 0, ninos: 0, visitas: 0 };
+    ultimosRegistros?.forEach(r => {
+      porCategoria.caballeros += r.caballeros || 0;
+      porCategoria.damas += r.damas || 0;
+      porCategoria.jovenes += (r.adol_varones || 0) + (r.adol_damas || 0);
+      porCategoria.ninos += (r.ninos_varones || 0) + (r.ninos_damas || 0);
+      porCategoria.visitas += r.visitas || 0;
+    });
+    const totalCategoria = Object.values(porCategoria).reduce((s, v) => s + v, 0) || 1;
+
+    porCategoria = {
+      caballeros: { cantidad: porCategoria.caballeros, porcentaje: Math.round(porCategoria.caballeros / totalCategoria * 100) },
+      damas: { cantidad: porCategoria.damas, porcentaje: Math.round(porCategoria.damas / totalCategoria * 100) },
+      jovenes: { cantidad: porCategoria.jovenes, porcentaje: Math.round(porCategoria.jovenes / totalCategoria * 100) },
+      ninos: { cantidad: porCategoria.ninos, porcentaje: Math.round(porCategoria.ninos / totalCategoria * 100) },
+      visitas: { cantidad: porCategoria.visitas, porcentaje: Math.round(porCategoria.visitas / totalCategoria * 100) }
+    };
+
+    // Tendencia mensual (últimos 6 meses)
+    const hace6Meses = new Date(hoy);
+    hace6Meses.setMonth(hace6Meses.getMonth() - 6);
+    const { data: tendencia6Meses } = await supabase
+      .from('registros_asistencia')
+      .select('total, created_at')
+      .gte('created_at', hace6Meses.toISOString())
+      .order('created_at', { ascending: true });
+
+    const mesesNombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const tendenciaMensual = {};
+    tendencia6Meses?.forEach(r => {
+      const d = new Date(r.created_at);
+      const mes = mesesNombres[d.getMonth()];
+      tendenciaMensual[mes] = (tendenciaMensual[mes] || 0) + (r.total || 0);
+    });
+
+    // Por servicio
+    const { data: porServicio } = await supabase
+      .from('registros_asistencia')
+      .select('total, servicios(nombre)')
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    const serviciosAgrupados = {};
+    porServicio?.forEach(r => {
+      const nombre = r.servicios?.nombre || 'Otro';
+      const base = nombre.split(' ')[0];
+      serviciosAgrupados[base] = (serviciosAgrupados[base] || 0) + (r.total || 0);
+    });
+
+    ok(res, {
+      resumen: {
+        hoy: asistenciaHoy,
+        semana: asistenciaSemana,
+        mes: asistenciaMes,
+        tendenciaSemana,
+        tendenciaMes,
+        vsUltimo: ultimo?.total || 0
+      },
+      porCategoria,
+      tendenciaMensual,
+      porServicio: serviciosAgrupados,
+      insights: []
+    });
+  } catch (e) { next(e); }
+});
+
 // GET /api/asistencia/:servicioId
 router.get('/:servicioId', async (req, res, next) => {
   try { ok(res, await porServicio(req.params.servicioId)); }
