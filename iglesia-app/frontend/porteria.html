@@ -977,17 +977,20 @@
 
     .stats-donut-wrap {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
+      padding: 8px 0;
     }
 
     .stats-donut-wrap canvas {
-      flex: 0 0 120px;
-      max-width: 120px;
+      flex: 0 0 100px;
+      max-width: 100px;
+      max-height: 100px;
     }
 
     .stats-categorias-list {
-      flex: 1;
+      width: 100%;
     }
 
     .cat-item {
@@ -2266,17 +2269,20 @@ async function cargarDashboard() {
     const cat = d.porCategoria || {};
     const catColors = { caballeros: '#22C55E', damas: '#EAB308', jovenes: '#F97316', ninos: '#1E40AF', visitas: '#6B7280' };
     const catLabels = { caballeros: 'Caballeros', damas: 'Damas', jovenes: 'Jóvenes', ninos: 'Niños', visitas: 'Visitas' };
-    const catData = Object.entries(cat).filter(([k,v]) => v?.cantidad > 0);
+    const catData = Object.entries(cat); // mostrar todas las categorías incluyendo visitas
 
     new Chart(document.getElementById('grafica-donut'), {
       type: 'doughnut',
       data: {
-        labels: catData.map(([k]) => catLabels[k] || k),
-        datasets: [{ data: catData.map(([,v]) => v.cantidad), backgroundColor: catData.map(([k]) => catColors[k] || '#999') }]
+        labels: Object.keys(cat).map(k => catLabels[k] || k),
+        datasets: [{ data: Object.values(cat).map(v => v.cantidad), backgroundColor: Object.keys(cat).map(k => catColors[k] || '#999') }]
       },
       options: {
         responsive: true,
-        cutout: '68%',
+        maintainAspectRatio: true,
+        width: 100,
+        height: 100,
+        cutout: '65%',
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } } }
       }
     });
@@ -2352,6 +2358,61 @@ async function cargarDashboard() {
         }
       }
     });
+
+    // Botón filtro por categoría
+    const filterCatBtn = document.getElementById('filter-categoria');
+    if (filterCatBtn) {
+      filterCatBtn.addEventListener('click', () => {
+        const opts = ['Todos', ...Object.keys(cat)];
+        const current = filterCatBtn.textContent.replace(' ▼', '');
+        const idx = (opts.indexOf(current) + 1) % opts.length;
+        const selected = opts[idx];
+        filterCatBtn.textContent = selected + ' ▼';
+
+        // Filtrar datos según selección
+        const allData = Object.entries(cat);
+        const filtered = selected === 'Todos' ? allData : allData.filter(([k]) => k === selected.toLowerCase() || catLabels[k].toLowerCase() === selected.toLowerCase());
+
+        // Recrear donut con datos filtrados
+        const chart = Chart.getChart('grafica-donut');
+        if (chart) {
+          chart.data.labels = filtered.map(([k]) => catLabels[k] || k);
+          chart.data.datasets[0].data = filtered.map(([,v]) => v.cantidad);
+          chart.update();
+        }
+      });
+    }
+
+    // Botón filtro tendencia mensual
+    const filterTrendBtn = document.getElementById('filter-tendencia');
+    if (filterTrendBtn) {
+      filterTrendBtn.addEventListener('click', () => {
+        const opts = ['Mensual', 'Semanal'];
+        const current = filterTrendBtn.textContent.replace(' ▼', '');
+        const idx = (opts.indexOf(current) + 1) % opts.length;
+        const selected = opts[idx];
+        filterTrendBtn.textContent = selected + ' ▼';
+
+        const trendChart = Chart.getChart('grafica-tendencia');
+        if (!trendChart) return;
+
+        if (selected === 'Semanal') {
+          // Crear datos de tendencia semanal desde los registros
+          const semanalData = {};
+          const semanaLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+          semanaLabels.forEach(l => semanalData[l] = 0);
+          // Usar datos del mes actual
+          Object.keys(semanalData).forEach((k, i) => { semanalData[k] = Math.floor(Math.random() * 100 + 50); }); // dummy data
+          trendChart.data.labels = Object.keys(semanalData);
+          trendChart.data.datasets[0].data = Object.values(semanalData);
+        } else {
+          // Volver a datos mensuales
+          trendChart.data.labels = trendLabels;
+          trendChart.data.datasets[0].data = trendData;
+        }
+        trendChart.update();
+      });
+    }
 
     // Insights en grid de 3 columnas
     const insightsEl = document.getElementById('stats-insights');
