@@ -461,7 +461,7 @@ async function login() {
       headers: { 'Authorization': 'Bearer ' + data.access_token }
     });
     const perfilData = await perfil.json();
-    if (perfilData.data) {
+    if (perfilData.data && !perfilData.data.nuevo) {
       localStorage.setItem('iglesia_perfil', JSON.stringify(perfilData.data));
     }
 
