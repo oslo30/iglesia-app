@@ -2380,6 +2380,21 @@ async function cargarDashboard() {
           chart.data.datasets[0].data = filtered.map(([,v]) => v.cantidad);
           chart.update();
         }
+
+        // Actualizar lista de categorías
+        const listEl = document.getElementById('categorias-list');
+        if (listEl) {
+          listEl.innerHTML = filtered.map(([k, v]) => `
+            <div class="cat-item">
+              <span class="cat-dot" style="background:${catColors[k] || '#999'}"></span>
+              <div class="cat-info">
+                <span class="cat-name">${catLabels[k] || k}</span>
+                <span class="cat-num">${v.cantidad} · ${v.porcentaje}%</span>
+              </div>
+              <div class="cat-bar-wrap"><div class="cat-bar" style="width:${v.porcentaje}%;background:${catColors[k] || '#999'}"></div></div>
+            </div>
+          `).join('');
+        }
       });
     }
 
