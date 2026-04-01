@@ -67,8 +67,8 @@ router.get('/perfil', requireAuth, async (req, res, next) => {
     ok(res, {
       ...data,
       email: req.user.email,
-      nombre: data.miembros
-        ? data.miembros.nombre + ' ' + data.miembros.apellido
+      nombre: data.nombre && data.apellido
+        ? data.nombre + ' ' + data.apellido
         : data.nombre_display || req.user.email
     });
   } catch (e) { next(e); }
@@ -138,7 +138,7 @@ router.patch('/usuarios/:id', requireAuth, requireRol('admin'), async (req, res,
 // ── POST /api/auth/registro — registro público (rol portero) ──
 router.post('/registro', requireAuth, async (req, res, next) => {
   try {
-    const { nombre_display, rol = 'portero' } = req.body;
+    const { nombre, apellido, rol = 'portero' } = req.body;
 
     // Verificar si ya tiene perfil
     const { data: existe } = await supabase
@@ -149,12 +149,16 @@ router.post('/registro', requireAuth, async (req, res, next) => {
 
     if (existe) return ok(res, existe);
 
+    const nombre_display = `${nombre} ${apellido}`.trim();
+
     const { data, error } = await supabase
       .from('usuarios_sistema')
       .insert({
         user_id:        req.user.id,
-        rol:            'portero', // siempre portero al registrarse
-        nombre_display: nombre_display || req.user.email,
+        rol:            'portero',
+        nombre:         nombre,
+        apellido:       apellido,
+        nombre_display: nombre_display,
         activo:         true
       })
       .select()
