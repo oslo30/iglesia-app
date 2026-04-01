@@ -1634,14 +1634,12 @@ async function guardarAsistencia() {
       vm_ninos:         0,
       vf_ninas:         0,
     },
-    notas:    notas    || undefined,
-    ujier_id: ujier_id || undefined
+    notas:    notas    || null,
+    ujier_id: ujier_id ? ujier_id : null
   };
   let result;
-  console.log('[DEBUG] Payload:', JSON.stringify(payload));
   try {
     result = await api('POST', `/asistencia/${S.servicioActivo.id}`, payload);
-    console.log('[DEBUG] Result:', JSON.stringify(result));
     toast('Registro guardado');
   } catch (e) { toast('Error: ' + (e.message || e)); console.error(e); return; }
   // Actualizar S.servicioActivo con la respuesta para mantener los datos al volver
