@@ -117,7 +117,7 @@ router.get('/dashboard', async (req, res, next) => {
     // Obtener todos los registros con datos del servicio
     const { data: todosRegistros } = await supabase
       .from('registros_asistencia')
-      .select('total, caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, servicios(fecha_hora, nombre)')
+      .select('caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, servicios(fecha_hora, nombre)')
       .order('created_at', { ascending: false });
 
     // Filtrar y calcular en JavaScript
@@ -207,6 +207,32 @@ router.get('/dashboard', async (req, res, next) => {
       serviciosAgrupados[base] = (serviciosAgrupados[base] || 0) + totalR(r);
     });
 
+    // Insights automáticos
+    const insights = [];
+    const todos = todosRegistros || [];
+
+    // Insight: categoría con mayor asistencia
+    const catEntries = Object.entries(porCategoria).filter(([,v]) => v.cantidad > 0);
+    if (catEntries.length > 0) {
+      const mayor = catEntries.reduce((a, b) => a[1].cantidad > b[1].cantidad ? a : b);
+      const labels = { caballeros: 'Caballeros', damas: 'Damas', jovenes: 'Jóvenes', ninos: 'Niños', visitas: 'Visitas' };
+      insights.push({ tipo: 'highlight', icon: '★', text: `${labels[mayor[0]] || mayor[0]} es la categoría con mayor asistencia (${mayor[1].porcentaje}%)` });
+    }
+
+    // Insight: tendencia de la semana
+    if (tendenciaSemana > 0) {
+      insights.push({ tipo: 'positive', icon: '▲', text: `La asistencia subió ${tendenciaSemana}% esta semana` });
+    } else if (tendenciaSemana < 0) {
+      insights.push({ tipo: 'negative', icon: '▼', text: `La asistencia bajó ${Math.abs(tendenciaSemana)}% esta semana` });
+    }
+
+    // Insight: mejor servicio
+    const svcEntries = Object.entries(serviciosAgrupados).filter(([,v]) => v > 0);
+    if (svcEntries.length > 0) {
+      const mejor = svcEntries.reduce((a, b) => a[1] > b[1] ? a : b);
+      insights.push({ tipo: 'highlight', icon: '★', text: `${mejor[0]} lidera en asistencia total` });
+    }
+
     ok(res, {
       resumen: {
         hoy: asistenciaHoy,
@@ -219,7 +245,7 @@ router.get('/dashboard', async (req, res, next) => {
       porCategoria,
       tendenciaMensual,
       porServicio: serviciosAgrupados,
-      insights: []
+      insights: insights.slice(0, 3)
     });
   } catch (e) { next(e); }
 });

@@ -39,6 +39,13 @@
       --shadow: 0 4px 12px rgba(0,0,0,0.08);
       --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
       --shadow-card: 0 2px 8px rgba(0,0,0,0.06);
+    --green: #22C55E;
+    --green-l: #DCFCE7;
+    --orange: #F97316;
+    --orange-l: #FFEDD5;
+    --yellow: #EAB308;
+    --yellow-l: #FEF9C3;
+    --darkblue: #1E40AF;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -906,26 +913,30 @@
     }
 
     .stats-kpi.primary {
-      background: var(--primary);
+      background: linear-gradient(135deg, #1E4DB7 0%, #2C6BFF 100%);
       color: #fff;
     }
 
     .stats-kpi strong {
-      font-size: 20px;
+      font-size: 22px;
+      font-weight: 700;
       display: block;
       margin: 4px 0;
     }
 
     .stats-kpi .kpi-var {
       font-size: 10px;
-      opacity: 0.8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
     }
 
-    .stats-kpi .kpi-var.up { color: #2ECC71; }
-    .stats-kpi .kpi-var.down { color: #E74C3C; }
-    .stats-kpi.primary .kpi-var { color: rgba(255,255,255,0.8); }
+    .stats-kpi .kpi-var.up { color: #22C55E; }
+    .stats-kpi .kpi-var.down { color: #F97316; }
+    .stats-kpi.primary .kpi-var { color: rgba(255,255,255,0.85); }
     .stats-kpi.primary .kpi-var.up,
-    .stats-kpi.primary .kpi-var.down { color: rgba(255,255,255,0.9); }
+    .stats-kpi.primary .kpi-var.down { color: rgba(255,255,255,0.95); }
 
     .stats-section {
       background: var(--surface);
@@ -935,12 +946,34 @@
       box-shadow: var(--shadow-card);
     }
 
+    .stats-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
     .stats-section-title {
       font-size: 13px;
       font-weight: 600;
-      margin-bottom: 12px;
       color: var(--text);
     }
+
+    .stats-filter {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text2);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: var(--radius-xs);
+      background: var(--bg2);
+      border: none;
+      font-family: inherit;
+    }
+
+    .stats-filter:hover { background: var(--border); }
 
     .stats-donut-wrap {
       display: flex;
@@ -949,8 +982,8 @@
     }
 
     .stats-donut-wrap canvas {
-      flex: 0 0 130px;
-      max-width: 130px;
+      flex: 0 0 120px;
+      max-width: 120px;
     }
 
     .stats-categorias-list {
@@ -962,9 +995,11 @@
       align-items: center;
       gap: 8px;
       font-size: 12px;
-      margin-bottom: 8px;
+      margin-bottom: 7px;
       color: var(--text);
     }
+
+    .cat-item:last-child { margin-bottom: 0; }
 
     .cat-dot {
       width: 8px;
@@ -977,11 +1012,11 @@
       flex: 1;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 6px;
     }
 
     .cat-name {
-      flex: 1;
       color: var(--text2);
       font-size: 11px;
     }
@@ -993,36 +1028,50 @@
     }
 
     .cat-bar-wrap {
-      flex: 1;
-      height: 5px;
+      width: 50px;
+      height: 4px;
       background: var(--border);
-      border-radius: 3px;
+      border-radius: 2px;
       overflow: hidden;
+      flex-shrink: 0;
     }
 
     .cat-bar {
       height: 100%;
-      border-radius: 3px;
+      border-radius: 2px;
       transition: width 0.5s ease;
+    }
+
+    .stats-insights-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
     }
 
     .stats-insight {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      background: var(--bg2);
+      text-align: center;
+      gap: 6px;
+      padding: 12px 8px;
       border-radius: var(--radius-sm);
-      margin-bottom: 8px;
-      font-size: 12px;
+      font-size: 10px;
       color: var(--text);
     }
 
-    .stats-insight:last-child { margin-bottom: 0; }
+    .stats-insight.positive { background: var(--green-l); }
+    .stats-insight.negative { background: var(--orange-l); }
+    .stats-insight.highlight { background: #FEF9C3; }
 
     .insight-icon {
-      font-size: 16px;
+      font-size: 18px;
       flex-shrink: 0;
+    }
+
+    .stats-insight-text {
+      line-height: 1.3;
+      color: var(--text2);
     }
 
     .stats-section-insights {
@@ -2172,22 +2221,25 @@ async function cargarDashboard() {
         <div class="stats-kpi primary">
           Asistencia Hoy
           <strong>${(d.resumen?.hoy || 0).toLocaleString()}</strong>
-          ${d.resumen?.vsUltimo ? `<span class="kpi-var">${d.resumen.vsUltimo > d.resumen.hoy ? '↓' : '↑'} ${Math.abs(d.resumen.vsUltimo - d.resumen.hoy)} vs último</span>` : ''}
+          ${d.resumen?.vsUltimo ? `<span class="kpi-var ${d.resumen.vsUltimo > d.resumen.hoy ? 'down' : 'up'}">${d.resumen.vsUltimo > d.resumen.hoy ? '▼' : '▲'} ${Math.abs(d.resumen.vsUltimo - d.resumen.hoy)} vs último</span>` : ''}
         </div>
         <div class="stats-kpi">
           Esta Semana
           <strong>${(d.resumen?.semana || 0).toLocaleString()}</strong>
-          <span class="kpi-var ${d.resumen?.tendenciaSemana >= 0 ? 'up' : 'down'}">${d.resumen?.tendenciaSemana >= 0 ? '↑' : '↓'} ${Math.abs(d.resumen?.tendenciaSemana || 0)}%</span>
+          <span class="kpi-var ${d.resumen?.tendenciaSemana >= 0 ? 'up' : 'down'}">${d.resumen?.tendenciaSemana >= 0 ? '▲' : '▼'} ${Math.abs(d.resumen?.tendenciaSemana || 0)}%</span>
         </div>
         <div class="stats-kpi">
           Este Mes
           <strong>${(d.resumen?.mes || 0).toLocaleString()}</strong>
-          <span class="kpi-var ${d.resumen?.tendenciaMes >= 0 ? 'up' : 'down'}">${d.resumen?.tendenciaMes >= 0 ? '↑' : '↓'} ${Math.abs(d.resumen?.tendenciaMes || 0)}%</span>
+          <span class="kpi-var ${d.resumen?.tendenciaMes >= 0 ? 'up' : 'down'}">${d.resumen?.tendenciaMes >= 0 ? '▲' : '▼'} ${Math.abs(d.resumen?.tendenciaMes || 0)}%</span>
         </div>
       </div>
 
       <div class="stats-section">
-        <div class="stats-section-title">Asistencia por Categoría</div>
+        <div class="stats-section-header">
+          <div class="stats-section-title">Asistencia por Categoría</div>
+          <button class="stats-filter" id="filter-categoria">Todos ▼</button>
+        </div>
         <div class="stats-donut-wrap">
           <canvas id="grafica-donut" height="130"></canvas>
           <div class="stats-categorias-list" id="categorias-list"></div>
@@ -2195,7 +2247,10 @@ async function cargarDashboard() {
       </div>
 
       <div class="stats-section">
-        <div class="stats-section-title">Tendencia Mensual</div>
+        <div class="stats-section-header">
+          <div class="stats-section-title">Tendencia Mensual</div>
+          <button class="stats-filter" id="filter-tendencia">Mensual ▼</button>
+        </div>
         <canvas id="grafica-tendencia" height="140"></canvas>
       </div>
 
@@ -2207,9 +2262,9 @@ async function cargarDashboard() {
       <div class="stats-section-insights" id="stats-insights"></div>
     `;
 
-    // Donut chart
+    // Donut chart - colores según especificación
     const cat = d.porCategoria || {};
-    const catColors = { caballeros: '#00519A', damas: '#C41E6A', jovenes: '#6E41B0', ninos: '#1E88D4', visitas: '#2ECC71' };
+    const catColors = { caballeros: '#22C55E', damas: '#EAB308', jovenes: '#F97316', ninos: '#1E40AF', visitas: '#6B7280' };
     const catLabels = { caballeros: 'Caballeros', damas: 'Damas', jovenes: 'Jóvenes', ninos: 'Niños', visitas: 'Visitas' };
     const catData = Object.entries(cat).filter(([k,v]) => v?.cantidad > 0);
 
@@ -2221,7 +2276,7 @@ async function cargarDashboard() {
       },
       options: {
         responsive: true,
-        cutout: '65%',
+        cutout: '68%',
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } } }
       }
     });
@@ -2241,23 +2296,30 @@ async function cargarDashboard() {
       `).join('');
     }
 
-    // Tendencia mensual
+    // Tendencia mensual con gradiente
     const trend = d.tendenciaMensual || {};
     const trendLabels = Object.keys(trend);
     const trendData = Object.values(trend);
-    new Chart(document.getElementById('grafica-tendencia'), {
+    const ctxLine = document.getElementById('grafica-tendencia').getContext('2d');
+    const gradientFill = ctxLine.createLinearGradient(0, 0, 0, 140);
+    gradientFill.addColorStop(0, 'rgba(30,77,183,0.2)');
+    gradientFill.addColorStop(1, 'rgba(30,77,183,0)');
+    new Chart(ctxLine, {
       type: 'line',
       data: {
         labels: trendLabels,
         datasets: [{
           label: 'Asistencia',
           data: trendData,
-          borderColor: '#00519A',
-          backgroundColor: 'rgba(0,81,154,0.1)',
+          borderColor: '#1E4DB7',
+          borderWidth: 2,
+          backgroundColor: gradientFill,
           fill: true,
           tension: 0.4,
           pointRadius: 4,
-          pointBackgroundColor: '#00519A'
+          pointBackgroundColor: '#1E4DB7',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1.5
         }]
       },
       options: {
@@ -2265,40 +2327,56 @@ async function cargarDashboard() {
         plugins: { legend: { display: false } },
         scales: {
           x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 } } }
+          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10 } } }
         }
       }
     });
 
-    // Por servicio
+    // Por servicio con sombras suaves
     const svc = d.porServicio || {};
     const svcLabels = Object.keys(svc);
     const svcData = Object.values(svc);
-    const svcColors = svcLabels.map((_, i) => ['#00519A','#C41E6A','#6E41B0','#1E88D4','#2ECC71','#F39C12'][i % 6]);
+    const svcColors = svcLabels.map((_, i) => ['#1E4DB7','#EAB308','#22C55E','#F97316','#1E40AF','#6B7280'][i % 6]);
     new Chart(document.getElementById('grafica-servicio'), {
       type: 'bar',
       data: {
         labels: svcLabels,
-        datasets: [{ data: svcData, backgroundColor: svcColors, borderRadius: 6 }]
+        datasets: [{ data: svcData, backgroundColor: svcColors, borderRadius: 8, borderSkipped: false }]
       },
       options: {
         responsive: true,
         plugins: { legend: { display: false } },
         scales: {
           x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 } } }
+          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10 } } }
         }
       }
     });
 
-    // Insights
+    // Insights en grid de 3 columnas
     const insightsEl = document.getElementById('stats-insights');
-    if (insightsEl && d.insights && d.insights.length > 0) {
-      insightsEl.innerHTML = '<div class="stats-section-title">Insights</div>' + d.insights.map(i => `<div class="stats-insight">${i.icon} ${i.text}</div>`).join('');
-    } else if (insightsEl) {
-      insightsEl.style.display = 'none';
+    if (insightsEl) {
+      const insights = d.insights || [];
+      if (insights.length > 0) {
+        insightsEl.innerHTML = `
+          <div class="stats-section-header" style="margin-bottom:12px">
+            <div class="stats-section-title">Insights</div>
+          </div>
+          <div class="stats-insights-grid">
+            ${insights.map(i => `
+              <div class="stats-insight ${i.tipo || 'positive'}">
+                <span class="insight-icon">${i.icon || '▲'}</span>
+                <span class="stats-insight-text">${i.text}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else {
+        insightsEl.style.display = 'none';
+      }
     }
   } catch (e) {
+    console.error(e);
     container.innerHTML = '<div class="error-msg show">Error cargando estadísticas</div>';
   }
 }
