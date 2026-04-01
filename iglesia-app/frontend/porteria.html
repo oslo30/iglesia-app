@@ -1264,6 +1264,10 @@
     <div class="modal">
       <div class="modal-title">Editar registro</div>
       <div class="form-group">
+        <div class="form-label">Responsable (ujier)</div>
+        <select class="input-field" id="edit-ujier"><option value="">— Selecciona el ujier —</option></select>
+      </div>
+      <div class="form-group">
         <div class="form-label">Caballeros</div>
         <input type="number" class="input-field" id="edit-caballeros" min="0">
       </div>
@@ -1272,20 +1276,16 @@
         <input type="number" class="input-field" id="edit-damas" min="0">
       </div>
       <div class="form-group">
-        <div class="form-label">Adol. Varones</div>
-        <input type="number" class="input-field" id="edit-adol_varones" min="0">
+        <div class="form-label">Adolescentes</div>
+        <input type="number" class="input-field" id="edit-adolescentes" min="0">
       </div>
       <div class="form-group">
-        <div class="form-label">Adol. Damas</div>
-        <input type="number" class="input-field" id="edit-adol_damas" min="0">
+        <div class="form-label">Niños</div>
+        <input type="number" class="input-field" id="edit-ninos" min="0">
       </div>
       <div class="form-group">
-        <div class="form-label">Niños Varones</div>
-        <input type="number" class="input-field" id="edit-ninos_varones" min="0">
-      </div>
-      <div class="form-group">
-        <div class="form-label">Niñas Damas</div>
-        <input type="number" class="input-field" id="edit-ninos_damas" min="0">
+        <div class="form-label">Visitas</div>
+        <input type="number" class="input-field" id="edit-visitas" min="0">
       </div>
       <div class="form-group">
         <div class="form-label">Notas</div>
@@ -1932,12 +1932,25 @@ function renderHistorial(lista) {
 function abrirEditarHist(r) {
   S.editandoHistId = r.id;
   S.editandoSvcId = r.servicio_id || r.servicios?.id;
+  // Llenar dropdown de ujieres
+  const sel = document.getElementById('edit-ujier');
+  while (sel.options.length > 1) sel.remove(1);
+  S.ujieres.forEach(u => {
+    const o = document.createElement('option');
+    o.value = u.id;
+    o.textContent = u.nombre_completo;
+    sel.appendChild(o);
+  });
+  sel.value = r.ujier_id || '';
+  // Campos simplificados
+  const adol = (r.adol_varones || 0) + (r.adol_damas || 0);
+  const ninos = (r.ninos_varones || 0) + (r.ninos_damas || 0);
+  const visitas = (r.vm || 0) + (r.vf || 0);
   document.getElementById('edit-caballeros').value = r.caballeros ?? 0;
   document.getElementById('edit-damas').value = r.damas ?? 0;
-  document.getElementById('edit-adol_varones').value = r.adol_varones ?? 0;
-  document.getElementById('edit-adol_damas').value = r.adol_damas ?? 0;
-  document.getElementById('edit-ninos_varones').value = r.ninos_varones ?? 0;
-  document.getElementById('edit-ninos_damas').value = r.ninos_damas ?? 0;
+  document.getElementById('edit-adolescentes').value = adol;
+  document.getElementById('edit-ninos').value = ninos;
+  document.getElementById('edit-visitas').value = visitas;
   document.getElementById('edit-notas').value = r.notas || '';
   abrirModal('modal-editar');
 }
@@ -1945,19 +1958,35 @@ function abrirEditarHist(r) {
 async function guardarEdicion() {
   const caballeros = parseInt(document.getElementById('edit-caballeros').value) || 0;
   const damas = parseInt(document.getElementById('edit-damas').value) || 0;
-  const adol_varones = parseInt(document.getElementById('edit-adol_varones').value) || 0;
-  const adol_damas = parseInt(document.getElementById('edit-adol_damas').value) || 0;
-  const ninos_varones = parseInt(document.getElementById('edit-ninos_varones').value) || 0;
-  const ninos_damas = parseInt(document.getElementById('edit-ninos_damas').value) || 0;
+  const adolescentes = parseInt(document.getElementById('edit-adolescentes').value) || 0;
+  const ninos = parseInt(document.getElementById('edit-ninos').value) || 0;
+  const visitas = parseInt(document.getElementById('edit-visitas').value) || 0;
   const notas = document.getElementById('edit-notas').value;
+  const ujier_id = document.getElementById('edit-ujier').value || undefined;
+  // Distribuir 50/50
+  const adolHalf = Math.floor(adolescentes / 2);
+  const ninosHalf = Math.floor(ninos / 2);
   const payload = {
-    feligreses: { caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas },
-    visitantes: { vm: 0, vf: 0, vm_adolescentes: 0, vf_adolescentes: 0, vm_ninos: 0, vf_ninas: 0 },
-    notas: notas || undefined
+    feligreses: {
+      caballeros, damas,
+      adol_varones: adolHalf,
+      adol_damas: adolescentes - adolHalf,
+      ninos_varones: ninosHalf,
+      ninos_damas: ninos - ninosHalf,
+    },
+    visitantes: { vm: visitas, vf: 0, vm_adolescentes: 0, vf_adolescentes: 0, vm_ninos: 0, vf_ninas: 0 },
+    notas: notas || undefined,
+    ujier_id
   };
   try { if (S.editandoSvcId) await api('POST', `/asistencia/${S.editandoSvcId}`, payload); } catch {}
   const idx = S.historialData.findIndex(r => r.id === S.editandoHistId);
-  if (idx !== -1) S.historialData[idx] = { ...S.historialData[idx], caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, total: caballeros + damas + adol_varones + adol_damas + ninos_varones + ninos_damas };
+  if (idx !== -1) S.historialData[idx] = {
+    ...S.historialData[idx],
+    caballeros, damas, adol_varones: adolHalf, adol_damas: adolescentes - adolHalf,
+    ninos_varones: ninosHalf, ninos_damas: ninos - ninosHalf,
+    total: caballeros + damas + adolescentes + ninos + visitas,
+    ujier_id, notas
+  };
   renderHistorial(S.historialData);
   cerrarModal('modal-editar');
   toast('Registro actualizado');
