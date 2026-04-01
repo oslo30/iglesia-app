@@ -31,12 +31,12 @@ async function porId(id) {
 router.get('/hoy', async (req, res, next) => {
   try {
     const cols = await selectCols(supabase);
-    const fecha = new Date().toISOString().split('T')[0];
+    // La fecha viene en hora local del frontend (browser del usuario)
     const { data, error } = await supabase
       .from('servicios')
       .select(`*, registros_asistencia(${cols})`)
-      .gte('fecha_hora', fecha + 'T00:00:00')
-      .lte('fecha_hora', fecha + 'T23:59:59')
+      .gte('fecha_hora', req.query.fecha + 'T00:00:00')
+      .lte('fecha_hora', req.query.fecha + 'T23:59:59')
       .order('fecha_hora', { ascending: true });
     if (error) throw new AppError(error.message, 500);
     ok(res, data || []);

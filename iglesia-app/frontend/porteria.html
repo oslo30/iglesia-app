@@ -1442,7 +1442,8 @@ async function cargarServicios() {
   const list = document.getElementById('servicios-list');
   list.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
   try {
-    const d = await api('GET', '/servicios/hoy');
+    const fechaLocal = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD en hora local
+    const d = await api('GET', '/servicios/hoy?fecha=' + fechaLocal);
     renderServicios(Array.isArray(d) ? d : []);
   } catch { renderServicios(mockSvcs()); }
 }
