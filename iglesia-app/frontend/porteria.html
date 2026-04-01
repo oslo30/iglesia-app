@@ -1637,10 +1637,24 @@ async function guardarAsistencia() {
     notas:    notas    || undefined,
     ujier_id: ujier_id || undefined
   };
+  let result;
+  console.log('[DEBUG] Payload:', JSON.stringify(payload));
   try {
-    await api('POST', `/asistencia/${S.servicioActivo.id}`, payload);
+    result = await api('POST', `/asistencia/${S.servicioActivo.id}`, payload);
+    console.log('[DEBUG] Result:', JSON.stringify(result));
     toast('Registro guardado');
-  } catch (e) { toast('Error: ' + (e.message || e)); console.error(e); }
+  } catch (e) { toast('Error: ' + (e.message || e)); console.error(e); return; }
+  // Actualizar S.servicioActivo con la respuesta para mantener los datos al volver
+  if (result) {
+    S.registroId = result.id;
+    S.servicioActivo.registros_asistencia = [result];
+    S.asistencia.caballeros = result.caballeros || 0;
+    S.asistencia.damas = result.damas || 0;
+    S.asistencia.adolescentes = (result.adol_varones || 0) + (result.adol_damas || 0);
+    S.asistencia.ninos = (result.ninos_varones || 0) + (result.ninos_damas || 0);
+    S.asistencia.visitas = (result.vm || 0) + (result.vf || 0);
+    actualizarContadores();
+  }
   const subF = (caballeros||0) + (damas||0) + (adolescentes||0) + (ninos||0);
   const subV = visitas || 0;
   document.getElementById('confirm-titulo').textContent = 'Registro guardado';
