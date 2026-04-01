@@ -461,8 +461,26 @@ async function login() {
       headers: { 'Authorization': 'Bearer ' + data.access_token }
     });
     const perfilData = await perfil.json();
+
     if (perfilData.data && !perfilData.data.nuevo) {
+      // Usuario existente con perfil en BD
       localStorage.setItem('iglesia_perfil', JSON.stringify(perfilData.data));
+    } else if (perfilData.data?.nuevo) {
+      // Usuario nuevo sin perfil en BD - crear perfil automáticamente
+      const user = JSON.parse(localStorage.getItem('iglesia_user') || '{}');
+      const existingPerfil = JSON.parse(localStorage.getItem('iglesia_perfil') || '{}');
+      const nombreDisplay = existingPerfil.nombre || (user.email ? user.email.split('@')[0] : 'Usuario');
+
+      await fetch('/api/auth/registro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + data.access_token
+        },
+        body: JSON.stringify({ nombre_display: nombreDisplay, rol: 'portero' })
+      });
+
+      localStorage.setItem('iglesia_perfil', JSON.stringify({ nombre: nombreDisplay, rol: 'portero' }));
     }
 
     const rol = perfilData.data?.rol || 'portero';
