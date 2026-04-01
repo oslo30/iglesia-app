@@ -138,8 +138,14 @@
     .header-rol {
       font-size: 11px;
       color: var(--text2);
-      padding-left: 92px;
-      margin-top: -8px;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .logo-column {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
     }
 
     .header-right {
@@ -154,8 +160,8 @@
       gap: 5px;
       background: var(--primary-s);
       color: var(--primary);
-      font-size: 11px;
-      padding: 5px 10px;
+      font-size: 10px;
+      padding: 4px 8px;
       border-radius: var(--radius-full);
       font-weight: 600;
     }
@@ -187,8 +193,8 @@
       background: var(--gray-l);
       border: none;
       color: var(--text2);
-      font-size: 11px;
-      padding: 6px 12px;
+      font-size: 9px;
+      padding: 5px 10px;
       border-radius: var(--radius-xs);
       cursor: pointer;
       font-weight: 500;
@@ -1014,8 +1020,11 @@
     <div class="header">
       <div class="header-top">
         <div class="header-left">
-          <div class="header-logo">
-            <img src="/logo.png" alt="Logo">
+          <div class="logo-column">
+            <div class="header-logo">
+              <img src="/logo.png" alt="Logo">
+            </div>
+            <div class="header-rol" id="header-rol"></div>
           </div>
           <div class="header-info">
             <div class="header-title" id="header-title"></div>
@@ -1033,7 +1042,6 @@
         </div>
       </div>
     </div>
-    <div class="header-rol" id="header-rol"></div>
 
     <div class="tabs">
       <button class="tab-item active" onclick="homeTab(0,this)">Servicios</button>
