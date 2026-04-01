@@ -96,6 +96,16 @@
       margin-bottom: 12px;
     }
 
+    .user-greeting {
+      position: absolute;
+      top: 36px;
+      left: 92px;
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
     .header-left {
       display: flex;
       align-items: center;
@@ -195,18 +205,6 @@
       font-size: 13px;
       color: var(--text);
       font-weight: 600;
-      padding: 0 16px;
-      margin-top: 8px;
-      white-space: nowrap;
-    }
-
-    .user-greeting {
-      font-size: 13px;
-      color: var(--text);
-      font-weight: 600;
-      padding: 0 16px;
-      margin-top: 8px;
-      padding-left: 92px;
       white-space: nowrap;
     }
 
@@ -1043,9 +1041,8 @@
           <button class="btn-exit" onclick="logout()">Salir</button>
         </div>
       </div>
-      <div id="user-greeting" class="user-greeting"></div>
-      <div class="header-user" id="user-info" style="display:none"></div>
     </div>
+    <div id="user-greeting" class="user-greeting"></div>
 
     <div class="tabs">
       <button class="tab-item active" onclick="homeTab(0,this)">Servicios</button>
