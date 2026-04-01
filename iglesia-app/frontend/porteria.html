@@ -1551,7 +1551,7 @@ function actualizarAsistenciaDirecta(key) {
 }
 
 function bloquearInputsPorFecha(servicio) {
-  const inputs = ['v-caballeros','v-damas','v-adol_varones','v-adol_damas','v-ninos_varones','v-ninos_varones','v-ninos_damas'];
+  const inputs = ['v-caballeros','v-damas','v-adolescentes','v-ninos','v-visitas'];
   const ahora = new Date();
   const fechaSvc = new Date(servicio.fecha_hora);
   const nombre = servicio.nombre || '';
