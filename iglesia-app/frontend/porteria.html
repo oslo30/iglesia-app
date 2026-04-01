@@ -193,7 +193,7 @@
 
     #user-greeting {
       font-size: 13px;
-      color: var(--primary);
+      color: var(--text);
       font-weight: 600;
       padding: 0 16px;
       margin-top: 8px;
@@ -202,10 +202,11 @@
 
     .user-greeting {
       font-size: 13px;
-      color: var(--primary);
+      color: var(--text);
       font-weight: 600;
       padding: 0 16px;
       margin-top: 8px;
+      padding-left: 92px;
       white-space: nowrap;
     }
 
@@ -2149,7 +2150,7 @@ try {
   const rol = perfil.rol || 'portero';
   const ROLES = { admin: 'Administrador', pastor: 'Pastor', portero: 'Ujier', tesorero: 'Tesorero' };
   if (nombre) {
-    document.getElementById('user-greeting').textContent = `Dios te bendiga, ${nombre}`;
+    document.getElementById('user-greeting').textContent = `Dtb ${nombre}`;
     const rolLabel = ROLES[rol] || 'Ujier';
     document.getElementById('user-info').textContent = rolLabel;
     document.getElementById('user-info').style.display = 'block';
