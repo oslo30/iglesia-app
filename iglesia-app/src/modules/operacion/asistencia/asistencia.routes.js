@@ -25,25 +25,23 @@ async function registrar({ servicioId, feligreses, visitantes, notas, ujierId })
   const f = feligreses ?? {};
   const v = visitantes ?? {};
 
+  // Distribuir adolescentes y ninos entre varones y damas (50/50)
+  const adolescentes = f.adolescentes ?? 0;
+  const ninos = f.ninos ?? 0;
+  const adolHalf = Math.floor(adolescentes / 2);
+  const ninosHalf = Math.floor(ninos / 2);
+
   const { data, error } = await supabase
     .from('registros_asistencia')
     .upsert({
       servicio_id:       servicioId,
-      // Feligreses
       caballeros:      f.caballeros    ?? 0,
       damas:           f.damas         ?? 0,
-      adol_varones:    f.adol_varones  ?? 0,
-      adol_damas:      f.adol_damas    ?? 0,
-      ninos_varones:   f.ninos_varones ?? 0,
-      ninos_damas:     f.ninos_damas   ?? 0,
-      // Visitantes
-      vm:              v.vm            ?? 0,
-      vf:              v.vf            ?? 0,
-      vm_adolescentes: v.vm_adolescentes ?? 0,
-      vf_adolescentes: v.vf_adolescentes ?? 0,
-      vm_ninos:        v.vm_ninos      ?? 0,
-      vf_ninas:        v.vf_ninas      ?? 0,
-      // Meta (total se calcula en la BD via trigger)
+      adol_varones:    adolHalf,
+      adol_damas:      adolescentes - adolHalf,
+      ninos_varones:   ninosHalf,
+      ninos_damas:     ninos - ninosHalf,
+      vm:              v.visitas ?? 0,
       notas:           notas    ?? null,
       ujier_id:        ujierId ?? null,
     }, { onConflict: 'servicio_id' })
