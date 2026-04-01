@@ -138,7 +138,8 @@
     .header-rol {
       font-size: 11px;
       color: var(--text2);
-      margin-top: 1px;
+      padding-left: 92px;
+      margin-top: -8px;
     }
 
     .header-right {
@@ -1018,7 +1019,6 @@
           </div>
           <div class="header-info">
             <div class="header-title" id="header-title"></div>
-            <div class="header-rol" id="header-rol"></div>
             <div class="header-date" id="fecha-hoy"></div>
           </div>
         </div>
@@ -1033,6 +1033,7 @@
         </div>
       </div>
     </div>
+    <div class="header-rol" id="header-rol"></div>
 
     <div class="tabs">
       <button class="tab-item active" onclick="homeTab(0,this)">Servicios</button>
@@ -2139,8 +2140,8 @@ try {
   if (nombre) {
     document.getElementById('header-title').textContent = `Dtb ${nombre}`;
     document.getElementById('header-title').style.color = 'var(--text)';
-    document.getElementById('header-rol').textContent = ROLES[rol] || 'Ujier';
   }
+  document.getElementById('header-rol').textContent = ROLES[rol] || 'Ujier';
 } catch {}
 
 let _selectDestino = null;
