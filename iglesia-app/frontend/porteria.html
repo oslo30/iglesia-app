@@ -198,6 +198,13 @@
       margin-top: 1px;
     }
 
+    #user-greeting {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
     /* ── TABS ── */
     .tabs {
       display: flex;
@@ -1011,8 +1018,9 @@
             <img src="/logo.png" alt="Logo">
           </div>
           <div class="header-info">
-            <div class="header-title" id="header-title">Ujieres</div>
+            <div class="header-title">Ujieres</div>
             <div class="header-date" id="fecha-hoy"></div>
+            <div class="header-user" id="user-greeting"></div>
           </div>
         </div>
         <div class="header-right">
@@ -1025,6 +1033,7 @@
           <button class="btn-exit" onclick="logout()">Salir</button>
         </div>
       </div>
+      <div class="header-user" id="user-info" style="display:none"></div>
     </div>
 
     <div class="tabs">
@@ -2130,7 +2139,7 @@ try {
   const rol = perfil.rol || 'portero';
   const ROLES = { admin: 'Administrador', pastor: 'Pastor', portero: 'Ujier', tesorero: 'Tesorero' };
   if (nombre) {
-    document.getElementById('header-title').textContent = `Dtb ${nombre}`;
+    document.getElementById('user-greeting').textContent = `Dios te bendiga, ${nombre}`;
     const rolLabel = ROLES[rol] || 'Ujier';
     document.getElementById('user-info').textContent = rolLabel;
     document.getElementById('user-info').style.display = 'block';
