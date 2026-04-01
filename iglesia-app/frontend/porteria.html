@@ -1929,7 +1929,7 @@ function renderHistorial(lista) {
         <div class="hist-stat"><div class="hist-stat-val" style="color:var(--green)">${(r.vm ?? 0) + (r.vf ?? 0) + (r.vm_adolescentes ?? 0) + (r.vf_adolescentes ?? 0) + (r.vm_ninos ?? 0) + (r.vf_ninas ?? 0)}</div><div class="hist-stat-lbl">Visitas</div></div>
       </div>
       ${r.notas ? `<div class="hist-notas">"${r.notas}"</div>` : ''}
-      <div class="hist-meta"><span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> ${portero}</span>${ujierNombre ? `<span style="color:var(--primary)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> ${ujierNombre}</span>` : ''}${caracter ? `<span class="hist-caracter">${caracter}</span>` : ''}</div>
+      <div class="hist-meta">${ujierNombre ? `<span style="color:var(--primary)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> ${ujierNombre}</span>` : ''}${caracter ? `<span class="hist-caracter">${caracter}</span>` : ''}</div>
       <div class="hist-actions">
         <button class="btn-sm" style="flex:1" onclick="abrirEditarHist(window['_hist_${r.id}'])">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
