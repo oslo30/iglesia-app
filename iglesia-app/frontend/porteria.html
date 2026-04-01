@@ -195,7 +195,18 @@
       font-size: 13px;
       color: var(--primary);
       font-weight: 600;
-      margin-top: 60px;
+      padding: 0 16px;
+      margin-top: 8px;
+      white-space: nowrap;
+    }
+
+    .user-greeting {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 600;
+      padding: 0 16px;
+      margin-top: 8px;
+      white-space: nowrap;
     }
 
     #user-info {
@@ -1019,7 +1030,6 @@
           <div class="header-info">
             <div class="header-title">Ujieres</div>
             <div class="header-date" id="fecha-hoy"></div>
-            <div class="header-user" id="user-greeting"></div>
           </div>
         </div>
         <div class="header-right">
@@ -1032,6 +1042,7 @@
           <button class="btn-exit" onclick="logout()">Salir</button>
         </div>
       </div>
+      <div id="user-greeting" class="user-greeting"></div>
       <div class="header-user" id="user-info" style="display:none"></div>
     </div>
 
@@ -1053,16 +1064,16 @@
       </div>
       <div id="home-2" style="display:none">
         <div class="chart-wrap" id="chart-wrap">
-            <div class="chart-title">Asistencia</div>
-            <div class="chart-filter">
-              <div class="chip active" onclick="filtroGrafica('semana',this)">Esta semana</div>
-              <div class="chip" onclick="filtroGrafica('mes',this)">Este mes</div>
-              <div class="chip" onclick="filtroGrafica('todo',this)">Todo</div>
-            </div>
-            <canvas id="grafica-unica" height="180"></canvas>
+          <div class="chart-title">Asistencia</div>
+          <div class="chart-filter">
+            <div class="chip active" onclick="filtroGrafica('semana',this)">Esta semana</div>
+            <div class="chip" onclick="filtroGrafica('mes',this)">Este mes</div>
+            <div class="chip" onclick="filtroGrafica('todo',this)">Todo</div>
           </div>
-          <div id="stats-resumen"></div>
+          <canvas id="grafica-unica" height="180"></canvas>
         </div>
+        <div id="stats-resumen"></div>
+      </div>
     </div>
 
     <button class="fab" id="fab-nuevo-servicio" onclick="abrirNuevoServicio()">+</button>
