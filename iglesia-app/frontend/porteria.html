@@ -1551,8 +1551,6 @@ function actualizarAsistenciaDirecta(key) {
 }
 
 function bloquearInputsPorFecha(servicio) {
-  // ⚠️ OVERRIDE PARA PRUEBAS: siempre deja inputs habilitados
-  return;
   const inputs = ['v-caballeros','v-damas','v-adol_varones','v-adol_damas','v-ninos_varones','v-ninos_varones','v-ninos_damas'];
   const ahora = new Date();
   const fechaSvc = new Date(servicio.fecha_hora);
