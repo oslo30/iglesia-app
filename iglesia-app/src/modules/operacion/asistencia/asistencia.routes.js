@@ -126,7 +126,9 @@ router.get('/dashboard', async (req, res, next) => {
       return f >= min && f < max;
     });
 
-    const sumar = (arr) => arr.reduce((s, r) => s + (r.total || 0), 0);
+    // total se calcula desde columnas porque el trigger BD puede dar 0
+    const totalR = (r) => (r.caballeros||0) + (r.damas||0) + (r.adol_varones||0) + (r.adol_damas||0) + (r.ninos_varones||0) + (r.ninos_damas||0);
+    const sumar = (arr) => arr.reduce((s, r) => s + totalR(r), 0);
 
     // Asistencia hoy
     const regsHoy = filtrar(hoy, manana);
@@ -142,7 +144,7 @@ router.get('/dashboard', async (req, res, next) => {
 
     // Último servicio
     const ultimo = (todosRegistros || [])[0];
-    const vsUltimo = ultimo?.total || 0;
+    const vsUltimo = totalR(ultimo);
 
     // Tendencia semanal
     const haceSemana = new Date(inicioSemana);
@@ -170,7 +172,7 @@ router.get('/dashboard', async (req, res, next) => {
       porCategoria.damas += r.damas || 0;
       porCategoria.jovenes += (r.adol_varones || 0) + (r.adol_damas || 0);
       porCategoria.ninos += (r.ninos_varones || 0) + (r.ninos_damas || 0);
-      porCategoria.visitas += r.total - (r.caballeros || 0) - (r.damas || 0) - (r.adol_varones || 0) - (r.adol_damas || 0) - (r.ninos_varones || 0) - (r.ninos_damas || 0) > 0 ? r.total - (r.caballeros || 0) - (r.damas || 0) - (r.adol_varones || 0) - (r.adol_damas || 0) - (r.ninos_varones || 0) - (r.ninos_damas || 0) : 0;
+      porCategoria.visitas += totalR(r) - (r.caballeros || 0) - (r.damas || 0) - (r.adol_varones || 0) - (r.adol_damas || 0) - (r.ninos_varones || 0) - (r.ninos_damas || 0) > 0 ? totalR(r) - (r.caballeros || 0) - (r.damas || 0) - (r.adol_varones || 0) - (r.adol_damas || 0) - (r.ninos_varones || 0) - (r.ninos_damas || 0) : 0;
     });
     // Fix visitas: si es negativo, poner 0
     if (porCategoria.visitas < 0) porCategoria.visitas = 0;
@@ -193,7 +195,7 @@ router.get('/dashboard', async (req, res, next) => {
       const f = new Date(r.servicios?.fecha_hora);
       if (f >= hace6Meses) {
         const mes = mesesNombres[f.getMonth()];
-        tendenciaMensual[mes] = (tendenciaMensual[mes] || 0) + (r.total || 0);
+        tendenciaMensual[mes] = (tendenciaMensual[mes] || 0) + totalR(r);
       }
     });
 
@@ -202,7 +204,7 @@ router.get('/dashboard', async (req, res, next) => {
     (todosRegistros || []).forEach(r => {
       const nombre = r.servicios?.nombre || 'Otro';
       const base = nombre.split(' ')[0];
-      serviciosAgrupados[base] = (serviciosAgrupados[base] || 0) + (r.total || 0);
+      serviciosAgrupados[base] = (serviciosAgrupados[base] || 0) + totalR(r);
     });
 
     ok(res, {
