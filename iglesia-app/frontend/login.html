@@ -260,9 +260,10 @@
 
     .links {
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
+      justify-content: center;
       align-items: center;
-      gap: 6px;
+      gap: 4px 8px;
     }
 
     .links a {
@@ -277,6 +278,11 @@
 
     .links a:hover {
       background: var(--primary-s);
+    }
+
+    .divider {
+      color: var(--text3);
+      font-size: 13px;
     }
 
     .footer {
@@ -376,6 +382,8 @@
 
     <div class="links">
       <a href="/olvide-password.html">¿Olvidaste tu contraseña?</a>
+      <span class="divider">·</span>
+      <a href="/registro.html">¿No tienes cuenta? Regístrate</a>
     </div>
   </div>
 
