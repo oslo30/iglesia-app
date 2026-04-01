@@ -1611,39 +1611,49 @@ function actualizarContadores() {
 }
 
 async function guardarAsistencia() {
-  const { caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, vm, vf, vm_adolescentes, vf_adolescentes, vm_ninos, vf_ninas } = S.asistencia;
+  const { caballeros, damas, adolescentes, ninos, visitas } = S.asistencia;
   const notas = document.getElementById('notas-reg').value;
   const ujier_id = document.getElementById('reg-responsable').value;
+  // Distribuir adolescentes y niños 50/50 entre varones y damas
+  const adolHalf = Math.floor((adolescentes || 0) / 2);
+  const ninosHalf = Math.floor((ninos || 0) / 2);
   const payload = {
-    feligreses: { caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas },
-    visitantes: { vm, vf, vm_adolescentes, vf_adolescentes, vm_ninos, vf_ninas },
-    notas: notas || undefined,
+    feligreses: {
+      caballeros:    caballeros || 0,
+      damas:         damas      || 0,
+      adol_varones:  adolHalf,
+      adol_damas:    (adolescentes || 0) - adolHalf,
+      ninos_varones: ninosHalf,
+      ninos_damas:   (ninos || 0) - ninosHalf,
+    },
+    visitantes: {
+      vm:    visitas || 0,
+      vf:    0,
+      vm_adolescentes: 0,
+      vf_adolescentes: 0,
+      vm_ninos:         0,
+      vf_ninas:         0,
+    },
+    notas:    notas    || undefined,
     ujier_id: ujier_id || undefined
   };
   try {
     await api('POST', `/asistencia/${S.servicioActivo.id}`, payload);
     toast('Registro guardado');
   } catch (e) { toast('Error: ' + (e.message || e)); console.error(e); }
-  const subF = caballeros + damas + adol_varones + adol_damas + ninos_varones + ninos_damas;
-  const subV = vm + vf + vm_adolescentes + vf_adolescentes + vm_ninos + vf_ninas;
+  const subF = (caballeros||0) + (damas||0) + (adolescentes||0) + (ninos||0);
+  const subV = visitas || 0;
   document.getElementById('confirm-titulo').textContent = 'Registro guardado';
   document.getElementById('confirm-sub').textContent = S.servicioActivo.nombre;
   document.getElementById('confirm-summary').innerHTML =
     `<div class="sum-header">Feligreses</div>
-     <div class="sum-row"><span>Caballeros</span><span>${caballeros}</span></div>
-     <div class="sum-row"><span>Damas</span><span>${damas}</span></div>
-     <div class="sum-row"><span>Adol. V</span><span>${adol_varones}</span></div>
-     <div class="sum-row"><span>Adol. M</span><span>${adol_damas}</span></div>
-     <div class="sum-row"><span>Niños V</span><span>${ninos_varones}</span></div>
-     <div class="sum-row"><span>Niñas M</span><span>${ninos_damas}</span></div>
+     <div class="sum-row"><span>Caballeros</span><span>${caballeros||0}</span></div>
+     <div class="sum-row"><span>Damas</span><span>${damas||0}</span></div>
+     <div class="sum-row"><span>Adolescentes</span><span>${adolescentes||0}</span></div>
+     <div class="sum-row"><span>Niños</span><span>${ninos||0}</span></div>
      <div class="sum-row sum-total"><span>Subtotal</span><span>${subF}</span></div>
      <div class="sum-header">Visitantes</div>
-     <div class="sum-row"><span>V.M.</span><span>${vm}</span></div>
-     <div class="sum-row"><span>V.F.</span><span>${vf}</span></div>
-     <div class="sum-row"><span>V.M. Adol.</span><span>${vm_adolescentes}</span></div>
-     <div class="sum-row"><span>V.F. Adol.</span><span>${vf_adolescentes}</span></div>
-     <div class="sum-row"><span>V.M. Niños</span><span>${vm_ninos}</span></div>
-     <div class="sum-row"><span>V.F. Niñas</span><span>${vf_ninas}</span></div>
+     <div class="sum-row"><span>Visitas</span><span>${visitas||0}</span></div>
      <div class="sum-row sum-total"><span>Subtotal</span><span>${subV}</span></div>
      <div class="sum-row grand-total"><span>TOTAL</span><span>${subF + subV}</span></div>`;
   goTo('p-confirm');
@@ -1680,7 +1690,7 @@ async function ejecutarEliminar() {
   cerrarModal('modal-confirmar');
   if (S.eliminarTipo === 'registro') {
     try { await api('DELETE', `/asistencia/${S.servicioActivo.id}`); } catch {}
-    S.asistencia = { caballeros: 0, damas: 0, adol_varones: 0, adol_damas: 0, ninos_varones: 0, ninos_damas: 0, vm: 0, vf: 0, vm_adolescentes: 0, vf_adolescentes: 0, vm_ninos: 0, vf_ninas: 0 };
+    S.asistencia = { caballeros: 0, damas: 0, adolescentes: 0, ninos: 0, visitas: 0 };
     S.registroId = null;
     document.getElementById('btn-eliminar-reg').style.display = 'none';
     document.getElementById('notas-reg').value = '';
