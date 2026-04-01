@@ -94,6 +94,7 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 12px;
+      position: relative;
     }
 
     .user-greeting {
@@ -1040,9 +1041,10 @@
           </span>
           <button class="btn-exit" onclick="logout()">Salir</button>
         </div>
+        <div id="user-greeting" class="user-greeting"></div>
+        <div class="header-user" id="user-info" style="display:none"></div>
       </div>
     </div>
-    <div id="user-greeting" class="user-greeting"></div>
 
     <div class="tabs">
       <button class="tab-item active" onclick="homeTab(0,this)">Servicios</button>
