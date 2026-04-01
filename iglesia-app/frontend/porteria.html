@@ -565,6 +565,29 @@
       background: var(--gray-l);
     }
 
+    .btn-download-share {
+      width: 100%;
+      padding: 13px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: #111;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-download-share:active {
+      opacity: 0.85;
+      transform: scale(0.98);
+    }
+
     .btn-danger {
       width: 100%;
       padding: 13px;
@@ -1243,6 +1266,7 @@
         <div class="summary" id="confirm-summary"></div>
         <button class="btn-primary" onclick="goTo('p-home')">Volver al inicio</button>
         <button class="btn-secondary" onclick="cargarServicios();goTo('p-home')">Ver servicios</button>
+        <button class="btn-download-share" onclick="descargarRegistro()">Descargar comprobante</button>
       </div>
     </div>
   </div>
@@ -2059,6 +2083,38 @@ async function cargarGrafica(periodo) {
         <div class="hist-stat" style="background:var(--surface);border:1px solid var(--border)"><div class="hist-stat-val" style="color:var(--primary)">${Math.max(...fels)}</div><div class="hist-stat-lbl">Max.Feligreses</div></div>
         <div class="hist-stat" style="background:var(--surface);border:1px solid var(--border)"><div class="hist-stat-val" style="color:var(--green)">${Math.max(...viss)}</div><div class="hist-stat-lbl">Max.Visitantes</div></div>
       </div>`;
+  }
+}
+
+async function descargarRegistro() {
+  const wrap = document.querySelector('.success-wrap');
+  const icon = wrap.querySelector('.success-icon');
+  const title = wrap.querySelector('.success-title');
+  const sub = wrap.querySelector('.success-sub');
+  const summary = wrap.querySelector('.summary');
+  const btns = wrap.querySelectorAll('button');
+
+  // Ocultar botones para la captura
+  btns.forEach(b => b.style.visibility = 'hidden');
+
+  try {
+    const canvas = await html2canvas(wrap, {
+      useCORS: true,
+      scale: 2,
+      backgroundColor: '#ffffff',
+      logging: false
+    });
+
+    const link = document.createElement('a');
+    const fecha = new Date().toLocaleDateString('es-CO');
+    const servicio = document.getElementById('confirm-sub').textContent || 'servicio';
+    link.download = `registro-${servicio.replace(/\s+/g, '-').toLowerCase()}-${fecha}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch (e) {
+    toast('No se pudo generar la imagen', true);
+  } finally {
+    btns.forEach(b => b.style.visibility = '');
   }
 }
 
