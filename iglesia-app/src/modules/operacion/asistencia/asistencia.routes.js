@@ -117,7 +117,7 @@ router.get('/dashboard', async (req, res, next) => {
     // Obtener todos los registros con datos del servicio
     const { data: todosRegistros } = await supabase
       .from('registros_asistencia')
-      .select('caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, servicios(fecha_hora, nombre)')
+      .select('caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, vm, vf, servicios(fecha_hora, nombre)')
       .order('created_at', { ascending: false });
 
     // Filtrar y calcular en JavaScript
