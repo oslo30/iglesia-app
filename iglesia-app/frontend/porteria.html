@@ -2372,9 +2372,10 @@ async function cargarDashboard() {
         const chart = Chart.getChart('grafica-donut');
         if (!chart) return;
 
+        const allData = Object.entries(cat);
+
         if (selected === 'Todos') {
           // Mostrar todas las categorías
-          const allData = Object.entries(cat);
           chart.data.labels = allData.map(([k]) => catLabels[k] || k);
           chart.data.datasets[0].data = allData.map(([,v]) => v.cantidad);
           chart.data.datasets[0].backgroundColor = allData.map(([k]) => catColors[k] || '#999');
@@ -2395,7 +2396,6 @@ async function cargarDashboard() {
         // Actualizar lista de categorías
         const listEl = document.getElementById('categorias-list');
         if (listEl) {
-          const allData = Object.entries(cat);
           const filtered = selected === 'Todos' ? allData : allData.filter(([k]) => k === selected.toLowerCase() || catLabels[k].toLowerCase() === selected.toLowerCase());
           listEl.innerHTML = filtered.map(([k, v]) => `
             <div class="cat-item">
