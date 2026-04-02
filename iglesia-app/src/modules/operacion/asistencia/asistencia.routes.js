@@ -172,10 +172,9 @@ router.get('/dashboard', async (req, res, next) => {
       porCategoria.damas += r.damas || 0;
       porCategoria.jovenes += (r.adol_varones || 0) + (r.adol_damas || 0);
       porCategoria.ninos += (r.ninos_varones || 0) + (r.ninos_damas || 0);
-      porCategoria.visitas += totalR(r) - (r.caballeros || 0) - (r.damas || 0) - (r.adol_varones || 0) - (r.adol_damas || 0) - (r.ninos_varones || 0) - (r.ninos_damas || 0) > 0 ? totalR(r) - (r.caballeros || 0) - (r.damas || 0) - (r.adol_varones || 0) - (r.adol_damas || 0) - (r.ninos_varones || 0) - (r.ninos_damas || 0) : 0;
+      // Visitas = vm + vf (visitantes varones y femeninos)
+      porCategoria.visitas += (r.vm || 0) + (r.vf || 0);
     });
-    // Fix visitas: si es negativo, poner 0
-    if (porCategoria.visitas < 0) porCategoria.visitas = 0;
 
     const totalCategoria = Object.values(porCategoria).reduce((s, v) => s + v, 0) || 1;
     porCategoria = {
