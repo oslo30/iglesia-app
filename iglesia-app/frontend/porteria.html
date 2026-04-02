@@ -1410,6 +1410,16 @@
       </div>
 
       <div class="form-group">
+        <div class="form-label">Características</div>
+        <div class="caracteres-wrap" id="caracteres-chips"></div>
+        <button class="btn-sm" onclick="toggleAddCaracter()" style="margin-top:4px">+ Agregar característica</button>
+        <div class="add-caracter-row" id="add-caracter-row">
+          <input type="text" class="input-field" id="nuevo-caracter-txt" placeholder="Nueva característica" style="flex:1">
+          <button class="btn-sm" onclick="agregarCaracterCustom()" style="white-space:nowrap">Agregar</button>
+        </div>
+      </div>
+
+      <div class="form-group">
         <div class="form-label">Responsable (opcional)</div>
         <select class="input-field" id="nsvc-responsable"><option value="">— Sin responsable —</option></select>
       </div>
