@@ -2283,7 +2283,7 @@ async function cargarDashboard() {
         width: 100,
         height: 100,
         cutout: '65%',
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } } }
+        plugins: { legend: { display: false }, tooltip: { filter: ctx => ctx.label !== 'Resto', callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` } } }
       }
     });
 
@@ -2351,10 +2351,10 @@ async function cargarDashboard() {
       },
       options: {
         responsive: true,
-        plugins: { legend: { display: false } },
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => String(ctx.parsed.y) } } },
         scales: {
           x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10 } } }
+          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10 }, callback: v => String(v) } }
         }
       }
     });
@@ -2369,22 +2369,34 @@ async function cargarDashboard() {
         const selected = opts[idx];
         filterCatBtn.textContent = selected + ' ▼';
 
-        // Filtrar datos según selección
-        const allData = Object.entries(cat);
-        const filtered = selected === 'Todos' ? allData : allData.filter(([k]) => k === selected.toLowerCase() || catLabels[k].toLowerCase() === selected.toLowerCase());
-
-        // Recrear donut con datos filtrados
         const chart = Chart.getChart('grafica-donut');
-        if (chart) {
-          chart.data.labels = filtered.map(([k]) => catLabels[k] || k);
-          chart.data.datasets[0].data = filtered.map(([,v]) => v.cantidad);
-          chart.data.datasets[0].backgroundColor = filtered.map(([k]) => catColors[k] || '#999');
-          chart.update();
+        if (!chart) return;
+
+        if (selected === 'Todos') {
+          // Mostrar todas las categorías
+          const allData = Object.entries(cat);
+          chart.data.labels = allData.map(([k]) => catLabels[k] || k);
+          chart.data.datasets[0].data = allData.map(([,v]) => v.cantidad);
+          chart.data.datasets[0].backgroundColor = allData.map(([k]) => catColors[k] || '#999');
+        } else {
+          // Mostrar solo el porcentaje de la categoría seleccionada
+          const filtered = allData.filter(([k]) => k === selected.toLowerCase() || catLabels[k].toLowerCase() === selected.toLowerCase());
+          if (filtered.length > 0) {
+            const [k, v] = filtered[0];
+            const pct = v.porcentaje;
+            const restante = 100 - pct;
+            chart.data.labels = [catLabels[k] || k, 'Resto'];
+            chart.data.datasets[0].data = [pct, restante];
+            chart.data.datasets[0].backgroundColor = [catColors[k] || '#999', '#E5E7EB'];
+          }
         }
+        chart.update();
 
         // Actualizar lista de categorías
         const listEl = document.getElementById('categorias-list');
         if (listEl) {
+          const allData = Object.entries(cat);
+          const filtered = selected === 'Todos' ? allData : allData.filter(([k]) => k === selected.toLowerCase() || catLabels[k].toLowerCase() === selected.toLowerCase());
           listEl.innerHTML = filtered.map(([k, v]) => `
             <div class="cat-item">
               <span class="cat-dot" style="background:${catColors[k] || '#999'}"></span>
