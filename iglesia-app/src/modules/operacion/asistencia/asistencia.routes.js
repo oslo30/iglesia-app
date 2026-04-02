@@ -144,7 +144,7 @@ router.get('/dashboard', async (req, res, next) => {
 
     // Último servicio
     const ultimo = (todosRegistros || [])[0];
-    const vsUltimo = totalR(ultimo);
+    const vsUltimo = ultimo ? totalR(ultimo) : 0;
 
     // Tendencia semanal
     const haceSemana = new Date(inicioSemana);
