@@ -1281,7 +1281,6 @@
       <div class="form-group">
         <div class="form-label">
           <span>Responsable del registro</span>
-          <span style="color:var(--primary);font-size:11px;cursor:pointer" onclick="abrirModalMiembro('reg-responsable')">+ Agregar</span>
         </div>
         <select class="input-field" id="reg-responsable"><option value="">— Selecciona el ujier —</option></select>
       </div>
@@ -1411,19 +1410,8 @@
       </div>
 
       <div class="form-group">
-        <div class="form-label">Características</div>
-        <div class="caracteres-wrap" id="caracteres-chips"></div>
-        <button class="btn-sm" onclick="toggleAddCaracter()" style="margin-top:4px">+ Agregar característica</button>
-        <div class="add-caracter-row" id="add-caracter-row">
-          <input type="text" class="input-field" id="nuevo-caracter-txt" placeholder="Nueva característica" style="flex:1">
-          <button class="btn-sm" onclick="agregarCaracterCustom()" style="white-space:nowrap">Agregar</button>
-        </div>
-      </div>
-
-      <div class="form-group">
         <div class="form-label">Responsable (opcional)</div>
         <select class="input-field" id="nsvc-responsable"><option value="">— Sin responsable —</option></select>
-        <span style="color:var(--primary);font-size:11px;cursor:pointer;display:inline-block;margin-top:4px" onclick="abrirModalMiembro('nsvc-responsable')">+ Agregar ujier</span>
       </div>
 
       <button class="btn-primary" id="nsvc-btn" onclick="guardarServicio()">Crear servicio</button>
