@@ -1674,21 +1674,23 @@ function renderServicios(lista) {
     const badge = getServicioBadge(s.fecha_hora);
     // Determinar si el servicio ya está permanentemente bloqueado (pasó el horario y ya tiene registro)
     const yaTieneRegistro = !!reg;
-    const fechaSvc = new Date(s.fecha_hora);
-    const ahora = new Date();
-    const isDomingoAM = s.nombre?.includes('Escuela Dominical') || (fechaSvc.getDay() === 0 && fechaSvc.getHours() < 12);
+    const fechaSvcMs = new Date(s.fecha_hora).getTime();
+    const ahoraMs = Date.now();
+    const isDomingoAM = s.nombre?.includes('Escuela Dominical') || (new Date(s.fecha_hora).getDay() === 0 && new Date(s.fecha_hora).getHours() < 12);
     const isEvangelistico = s.nombre?.includes('Evangelístico');
-    let finHorario = new Date(fechaSvc);
+
+    // Calcular fin del horario en timestamp
+    let finHorarioMs;
     if (isFamilia) {
-      finHorario = new Date(fechaSvc); // nunca se habilita
+      finHorarioMs = fechaSvcMs; // nunca se habilita (fin = inicio)
     } else if (isDomingoAM) {
-      finHorario.setHours(11, 0, 0, 0);
-    } else if (isEvangelistico || (fechaSvc.getDay() === 0 && fechaSvc.getHours() >= 17)) {
-      finHorario.setHours(19, 30, 0, 0);
+      finHorarioMs = new Date(new Date(s.fecha_hora).toISOString().split('T')[0] + 'T11:00:00').getTime();
+    } else if (isEvangelistico || (new Date(s.fecha_hora).getDay() === 0 && new Date(s.fecha_hora).getHours() >= 17)) {
+      finHorarioMs = new Date(new Date(s.fecha_hora).toISOString().split('T')[0] + 'T19:30:00').getTime();
     } else {
-      finHorario.setHours(20, 30, 0, 0);
+      finHorarioMs = new Date(new Date(s.fecha_hora).toISOString().split('T')[0] + 'T20:30:00').getTime();
     }
-    const permanentlyLocked = yaTieneRegistro && ahora > finHorario && !isAdmin();
+    const permanentlyLocked = yaTieneRegistro && ahoraMs > finHorarioMs && !isAdmin();
     window['_svc_' + s.id] = s;
     return `<div class="svc-wrap" id="${sid}">
       <div class="service-card ${activo ? 'highlight' : ''} ${isFamilia ? 'familia-card' : ''}" onclick="if(!event.target.closest('.svc-delete-btn') && !event.target.closest('button')) abrirServicio(window['_svc_${s.id}'])">
