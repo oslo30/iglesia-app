@@ -107,12 +107,26 @@ router.get('/estadisticas', async (req, res, next) => {
 router.get('/dashboard', async (req, res, next) => {
   try {
     const ahora = new Date();
-    const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
-    const manana = new Date(hoy);
-    manana.setDate(manana.getDate() + 1);
-    const inicioSemana = new Date(hoy);
-    inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay());
-    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    // Colombia timezone (UTC-5)
+    const COLOMBIA_OFFSET = -5 * 60; // minutos
+
+    // Obtener fecha actual en Colombia
+    const getFechaColombia = (date) => {
+      const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+      return new Date(utc + (COLOMBIA_OFFSET * 60000));
+    };
+
+    const ahoraColombia = getFechaColombia(ahora);
+    const hoyColombia = new Date(ahoraColombia.getFullYear(), ahoraColombia.getMonth(), ahoraColombia.getDate());
+    const mananaColombia = new Date(hoyColombia);
+    mananaColombia.setDate(mananaColombia.getDate() + 1);
+
+    // Inicio de semana (domingo) en Colombia
+    const inicioSemanaColombia = new Date(hoyColombia);
+    inicioSemanaColombia.setDate(inicioSemanaColombia.getDate() - inicioSemanaColombia.getDay());
+
+    // Inicio de mes en Colombia
+    const inicioMesColombia = new Date(ahoraColombia.getFullYear(), ahoraColombia.getMonth(), 1);
 
     // Obtener todos los registros con datos del servicio
     const { data: todosRegistros } = await supabase
@@ -120,10 +134,13 @@ router.get('/dashboard', async (req, res, next) => {
       .select('caballeros, damas, adol_varones, adol_damas, ninos_varones, ninos_damas, vm, vf, servicios(fecha_hora, nombre)')
       .order('created_at', { ascending: false });
 
-    // Filtrar y calcular en JavaScript
+    // Filtrar y calcular en JavaScript usando fechas Colombia
     const filtrar = (min, max) => (todosRegistros || []).filter(r => {
       const f = new Date(r.servicios?.fecha_hora);
-      return f >= min && f < max;
+      // Ajustar fecha a Colombia
+      const fUtc = f.getTime() + (f.getTimezoneOffset() * 60000);
+      const fColombia = new Date(fUtc + (COLOMBIA_OFFSET * 60000));
+      return fColombia >= min && fColombia < max;
     });
 
     // total se calcula desde columnas porque el trigger BD puede dar 0
@@ -131,34 +148,34 @@ router.get('/dashboard', async (req, res, next) => {
     const sumar = (arr) => arr.reduce((s, r) => s + totalR(r), 0);
 
     // Asistencia hoy
-    const regsHoy = filtrar(hoy, manana);
+    const regsHoy = filtrar(hoyColombia, mananaColombia);
     const asistenciaHoy = sumar(regsHoy);
 
     // Asistencia semana
-    const regsSemana = filtrar(inicioSemana, new Date());
+    const regsSemana = filtrar(inicioSemanaColombia, ahoraColombia);
     const asistenciaSemana = sumar(regsSemana);
 
     // Asistencia mes
-    const regsMes = filtrar(inicioMes, new Date());
+    const regsMes = filtrar(inicioMesColombia, ahoraColombia);
     const asistenciaMes = sumar(regsMes);
 
-    // Último servicio
+    // Último servicio (convertir a Colombia también para vsUltimo)
     const ultimo = (todosRegistros || [])[0];
     const vsUltimo = ultimo ? totalR(ultimo) : 0;
 
     // Tendencia semanal
-    const haceSemana = new Date(inicioSemana);
-    haceSemana.setDate(haceSemana.getDate() - 7);
-    const regsSemanaPasada = filtrar(haceSemana, inicioSemana);
+    const haceSemanaColombia = new Date(inicioSemanaColombia);
+    haceSemanaColombia.setDate(haceSemanaColombia.getDate() - 7);
+    const regsSemanaPasada = filtrar(haceSemanaColombia, inicioSemanaColombia);
     const asistenciaSemanaPasada = sumar(regsSemanaPasada);
     const tendenciaSemana = asistenciaSemanaPasada > 0
       ? Math.round(((asistenciaSemana - asistenciaSemanaPasada) / asistenciaSemanaPasada) * 100)
       : 0;
 
     // Tendencia mensual
-    const haceMes = new Date(inicioMes);
-    haceMes.setMonth(haceMes.getMonth() - 1);
-    const regsMesPasado = filtrar(haceMes, inicioMes);
+    const haceMesColombia = new Date(inicioMesColombia);
+    haceMesColombia.setMonth(haceMesColombia.getMonth() - 1);
+    const regsMesPasado = filtrar(haceMesColombia, inicioMesColombia);
     const asistenciaMesPasado = sumar(regsMesPasado);
     const tendenciaMes = asistenciaMesPasado > 0
       ? Math.round(((asistenciaMes - asistenciaMesPasado) / asistenciaMesPasado) * 100)
