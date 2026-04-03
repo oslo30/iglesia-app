@@ -1672,9 +1672,26 @@ function renderServicios(lista) {
     const nota = reg?.notas ? `<div class="svc-note">"${reg.notas}"</div>` : '';
     const isFamilia = s.nombre?.includes('Familia') || s.caracter?.includes('Familia');
     const badge = getServicioBadge(s.fecha_hora);
+    // Determinar si el servicio ya está permanentemente bloqueado (pasó el horario y ya tiene registro)
+    const yaTieneRegistro = !!reg;
+    const fechaSvc = new Date(s.fecha_hora);
+    const ahora = new Date();
+    const isDomingoAM = s.nombre?.includes('Escuela Dominical') || (fechaSvc.getDay() === 0 && fechaSvc.getHours() < 12);
+    const isEvangelistico = s.nombre?.includes('Evangelístico');
+    let finHorario = new Date(fechaSvc);
+    if (isFamilia) {
+      finHorario = new Date(fechaSvc); // nunca se habilita
+    } else if (isDomingoAM) {
+      finHorario.setHours(11, 0, 0, 0);
+    } else if (isEvangelistico || (fechaSvc.getDay() === 0 && fechaSvc.getHours() >= 17)) {
+      finHorario.setHours(19, 30, 0, 0);
+    } else {
+      finHorario.setHours(20, 30, 0, 0);
+    }
+    const permanentlyLocked = yaTieneRegistro && ahora > finHorario && !isAdmin();
     window['_svc_' + s.id] = s;
     return `<div class="svc-wrap" id="${sid}">
-      <div class="service-card ${activo ? 'highlight' : ''} ${isFamilia ? 'familia-card' : ''}" onclick="if(!event.target.closest('.svc-delete-btn')) abrirServicio(window['_svc_${s.id}'])">
+      <div class="service-card ${activo ? 'highlight' : ''} ${isFamilia ? 'familia-card' : ''}" onclick="if(!event.target.closest('.svc-delete-btn') && !event.target.closest('button')) abrirServicio(window['_svc_${s.id}'])">
         <div class="service-card-header">
           <div class="service-card-title">${s.nombre}</div>
           <div class="service-card-badge">
@@ -1688,9 +1705,9 @@ function renderServicios(lista) {
         </div>
         ${nota}
         ${ujierNombre ? `<div class="service-card-resp"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> ${ujierNombre}</div>` : ''}
-        <button class="svc-delete-btn" onclick="event.stopPropagation(); pedirEliminarServicio('${s.id}','${s.nombre.replace(/'/g,"&#39;")}')" title="Eliminar servicio">
+        ${!permanentlyLocked ? `<button class="svc-delete-btn" onclick="event.stopPropagation(); pedirEliminarServicio('${s.id}','${s.nombre.replace(/'/g,"&#39;")}')" title="Eliminar servicio">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-        </button>
+        </button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -1739,7 +1756,14 @@ function actualizarAsistenciaDirecta(key) {
   actualizarContadores();
 }
 
-function bloquearInputsPorFecha(servicio) {
+function isAdmin() {
+  try {
+    const perfil = JSON.parse(localStorage.getItem('iglesia_perfil') || '{}');
+    return perfil.rol === 'admin' || perfil.es_admin === true;
+  } catch { return false; }
+}
+
+function bloquearInputsPorFecha(servicio, permanentlyLocked = false) {
   const inputs = ['v-caballeros','v-damas','v-adolescentes','v-ninos','v-visitas'];
   const ahora = new Date();
   const fechaSvc = new Date(servicio.fecha_hora);
@@ -1779,41 +1803,50 @@ function bloquearInputsPorFecha(servicio) {
     msg = bloquear ? 'La asistencia se habilita de 6:30 PM a 8:30 PM' : 'Registro abierto hasta las 8:30 PM';
   }
 
+  // Si ya pasó el horario Y no es admin, queda permanentemente bloqueado
+  if (bloquear && !isAdmin()) {
+    permanentlyLocked = true;
+  }
+
+  // Si es admin, nunca bloquear
+  const esAdmin = isAdmin();
+  const realBloqueo = esAdmin ? false : (bloquear || permanentlyLocked);
+
   // Guardar estado global para usar en historial
-  window._asistenciaBloqueada = bloquear;
+  window._asistenciaBloqueada = realBloqueo;
 
   // Bloquear inputs de conteo
   inputs.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
-      el.disabled = bloquear;
-      el.style.opacity = bloquear ? '0.5' : '1';
-      el.style.pointerEvents = bloquear ? 'none' : 'auto';
+      el.disabled = realBloqueo;
+      el.style.opacity = realBloqueo ? '0.5' : '1';
+      el.style.pointerEvents = realBloqueo ? 'none' : 'auto';
     }
   });
 
   // Bloquear campo notas
   const notasEl = document.getElementById('notas-reg');
   if (notasEl) {
-    notasEl.disabled = bloquear;
-    notasEl.style.opacity = bloquear ? '0.5' : '1';
-    notasEl.style.pointerEvents = bloquear ? 'none' : 'auto';
+    notasEl.disabled = realBloqueo;
+    notasEl.style.opacity = realBloqueo ? '0.5' : '1';
+    notasEl.style.pointerEvents = realBloqueo ? 'none' : 'auto';
   }
 
   // Bloquear selector responsable
   const respEl = document.getElementById('reg-responsable');
   if (respEl) {
-    respEl.disabled = bloquear;
-    respEl.style.opacity = bloquear ? '0.5' : '1';
-    respEl.style.pointerEvents = bloquear ? 'none' : 'auto';
+    respEl.disabled = realBloqueo;
+    respEl.style.opacity = realBloqueo ? '0.5' : '1';
+    respEl.style.pointerEvents = realBloqueo ? 'none' : 'auto';
   }
 
   // Bloquear botón guardar
   const btnGuardar = document.getElementById('btn-guardar-reg');
   if (btnGuardar) {
-    btnGuardar.disabled = bloquear;
-    btnGuardar.style.opacity = bloquear ? '0.5' : '1';
-    btnGuardar.style.pointerEvents = bloquear ? 'none' : 'auto';
+    btnGuardar.disabled = realBloqueo;
+    btnGuardar.style.opacity = realBloqueo ? '0.5' : '1';
+    btnGuardar.style.pointerEvents = realBloqueo ? 'none' : 'auto';
   }
 
   const lockMsg = document.getElementById('lock-asistencia-msg');
