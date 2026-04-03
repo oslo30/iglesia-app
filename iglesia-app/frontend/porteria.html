@@ -2144,14 +2144,17 @@ async function cargarHistorial() {
     const d = await api('GET', '/asistencia/historial?limit=20');
     S.historialData = Array.isArray(d) ? d : [];
     renderHistorial(S.historialData);
-  } catch { S.historialData = mockHist(); renderHistorial(S.historialData); }
+  } catch (e) {
+    el.innerHTML = `<div class="empty">
+      <div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <p>Error al cargar los datos</p>
+      <button class="btn-sm" onclick="cargarHistorial()" style="margin-top:8px">Reintentar</button>
+    </div>`;
+  }
 }
 
 function mockHist() {
-  return [
-    { id: 'h1', servicio_id: 's1', servicios: { nombre: 'Culto Evangelístico', fecha_hora: new Date(Date.now() - 7 * 86400000).toISOString(), caracter: 'Evangelístico' }, caballeros: 75, damas: 83, adol_varones: 0, adol_damas: 0, ninos_varones: 0, ninos_damas: 0, total: 158, notas: 'Visita pastor invitado', registrado_por_nombre: 'Juan Pérez' },
-    { id: 'h2', servicio_id: 's2', servicios: { nombre: 'Escuela Dominical', fecha_hora: new Date(Date.now() - 14 * 86400000).toISOString(), caracter: 'Escuela dominical' }, caballeros: 60, damas: 70, adol_varones: 8, adol_damas: 10, ninos_varones: 12, ninos_damas: 13, total: 173, notas: null, registrado_por_nombre: 'María López' }
-  ];
+  return []; // No more fake data - show proper error when API fails
 }
 
 function renderHistorial(lista) {
