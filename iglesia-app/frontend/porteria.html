@@ -1673,7 +1673,9 @@ function renderServicios(lista) {
     const isFamilia = s.nombre?.includes('Familia') || s.caracter?.includes('Familia');
     const badge = getServicioBadge(s.fecha_hora);
     // Determinar si el servicio ya está permanentemente bloqueado (pasó el horario y ya tiene registro)
-    const yaTieneRegistro = !!reg;
+    // Verificar que reg tenga datos reales (no solo que exista el objeto)
+    const tieneDatosReales = reg && ((reg.caballeros || 0) + (reg.damas || 0) + (reg.adol_varones || 0) + (reg.adol_damas || 0) + (reg.ninos_varones || 0) + (reg.ninos_damas || 0) + (reg.vm || 0) + (reg.vf || 0)) > 0;
+    const yaTieneRegistro = tieneDatosReales;
     const fechaSvcMs = new Date(s.fecha_hora).getTime();
     const ahoraMs = Date.now();
     const isDomingoAM = s.nombre?.includes('Escuela Dominical') || (new Date(s.fecha_hora).getDay() === 0 && new Date(s.fecha_hora).getHours() < 12);
