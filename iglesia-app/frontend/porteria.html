@@ -1368,7 +1368,7 @@
         <input type="text" class="input-field" id="notas-reg" placeholder="Ej: Pastor invitado, ofrenda especial...">
       </div>
 
-      <button class="btn-primary" onclick="guardarAsistencia()">Guardar Registro</button>
+      <button class="btn-primary" id="btn-guardar-reg" onclick="guardarAsistencia()">Guardar Registro</button>
       <button class="btn-danger" id="btn-eliminar-reg" style="display:none" onclick="pedirEliminar('registro')">Eliminar Registro</button>
     </div>
   </div>
@@ -1778,6 +1778,11 @@ function bloquearInputsPorFecha(servicio) {
     bloquear = ahora < inicio || ahora > fin;
     msg = bloquear ? 'La asistencia se habilita de 6:30 PM a 8:30 PM' : 'Registro abierto hasta las 8:30 PM';
   }
+
+  // Guardar estado global para usar en historial
+  window._asistenciaBloqueada = bloquear;
+
+  // Bloquear inputs de conteo
   inputs.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
@@ -1786,12 +1791,42 @@ function bloquearInputsPorFecha(servicio) {
       el.style.pointerEvents = bloquear ? 'none' : 'auto';
     }
   });
+
+  // Bloquear campo notas
+  const notasEl = document.getElementById('notas-reg');
+  if (notasEl) {
+    notasEl.disabled = bloquear;
+    notasEl.style.opacity = bloquear ? '0.5' : '1';
+    notasEl.style.pointerEvents = bloquear ? 'none' : 'auto';
+  }
+
+  // Bloquear selector responsable
+  const respEl = document.getElementById('reg-responsable');
+  if (respEl) {
+    respEl.disabled = bloquear;
+    respEl.style.opacity = bloquear ? '0.5' : '1';
+    respEl.style.pointerEvents = bloquear ? 'none' : 'auto';
+  }
+
+  // Bloquear botón guardar
+  const btnGuardar = document.getElementById('btn-guardar-reg');
+  if (btnGuardar) {
+    btnGuardar.disabled = bloquear;
+    btnGuardar.style.opacity = bloquear ? '0.5' : '1';
+    btnGuardar.style.pointerEvents = bloquear ? 'none' : 'auto';
+  }
+
   const lockMsg = document.getElementById('lock-asistencia-msg');
   if (lockMsg) {
     lockMsg.textContent = msg;
     lockMsg.style.display = bloquear ? 'block' : 'none';
   }
+
+  // Bloquear también los botones de editar/eliminar en historial si estamos bloqueados
+  renderHistorial(S.historialData || []);
 }
+
+// Función para re-renderizar historial con estado de bloqueo actualizado
 
 function actualizarContadores() {
   ['caballeros', 'damas', 'adolescentes', 'ninos', 'visitas'].forEach(k => {
@@ -1805,6 +1840,11 @@ function actualizarContadores() {
 }
 
 async function guardarAsistencia() {
+  // Verificar si la asistencia está bloqueada por horario
+  if (window._asistenciaBloqueada) {
+    toast('Para modificaciones contacta con el administrador', true);
+    return;
+  }
   const { caballeros, damas, adolescentes, ninos, visitas } = S.asistencia;
   const notas = document.getElementById('notas-reg').value;
   const ujier_id = document.getElementById('reg-responsable').value;
@@ -2107,6 +2147,7 @@ function renderHistorial(lista) {
     const ujierNombre = r.ujier_id ? (S.ujieres?.find(u => u.id === r.ujier_id)?.nombre_completo || 'Ujier') : null;
     const caracter = svc.caracter || r.caracter || null;
     window['_hist_' + r.id] = r;
+    const bloqueado = window._asistenciaBloqueada;
     return `<div class="hist-card">
       <div class="hist-card-header">
         <div>
@@ -2125,10 +2166,10 @@ function renderHistorial(lista) {
       ${r.notas ? `<div class="hist-notas">"${r.notas}"</div>` : ''}
       <div class="hist-meta">${ujierNombre ? `<span style="color:var(--primary)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> ${ujierNombre}</span>` : ''}${caracter ? `<span class="hist-caracter">${caracter}</span>` : ''}</div>
       <div class="hist-actions">
-        <button class="btn-sm" style="flex:1" onclick="abrirEditarHist(window['_hist_${r.id}'])">
+        <button class="btn-sm" style="flex:1${bloqueado ? ';opacity:0.5;pointer-events:none' : ''}" onclick="abrirEditarHist(window['_hist_${r.id}'])" ${bloqueado ? 'disabled' : ''}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editar
         </button>
-        <button class="btn-sm btn-sm-danger" onclick="pedirEliminar('historial','${r.id}','${r.servicio_id || svc.id || ''}')">
+        <button class="btn-sm btn-sm-danger" onclick="pedirEliminar('historial','${r.id}','${r.servicio_id || svc.id || ''}')" ${bloqueado ? 'disabled' : ''} style="${bloqueado ? 'opacity:0.5;pointer-events:none' : ''}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
         </button>
       </div>
