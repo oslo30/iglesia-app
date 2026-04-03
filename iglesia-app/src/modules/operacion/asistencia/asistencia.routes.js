@@ -144,7 +144,7 @@ router.get('/dashboard', async (req, res, next) => {
     });
 
     // total se calcula desde columnas porque el trigger BD puede dar 0
-    const totalR = (r) => (r.caballeros||0) + (r.damas||0) + (r.adol_varones||0) + (r.adol_damas||0) + (r.ninos_varones||0) + (r.ninos_damas||0);
+    const totalR = (r) => (r.caballeros||0) + (r.damas||0) + (r.adol_varones||0) + (r.adol_damas||0) + (r.ninos_varones||0) + (r.ninos_damas||0) + (r.vm||0) + (r.vf||0);
     const sumar = (arr) => arr.reduce((s, r) => s + totalR(r), 0);
 
     // Asistencia hoy
