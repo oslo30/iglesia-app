@@ -31,13 +31,16 @@ async function porId(id) {
 router.get('/hoy', async (req, res, next) => {
   try {
     const cols = await selectCols(supabase);
-    // La fecha viene en hora local del frontend (browser del usuario)
+    // Mostrar servicios de los últimos 7 días basados en la fecha del frontend
+    const fechaHoy = new Date(req.query.fecha + 'T12:00:00Z'); // mediodía para evitar problemas de zona
+    const hace7dias = new Date(fechaHoy);
+    hace7dias.setDate(hace7dias.getDate() - 7);
+    const desde = hace7dias.toISOString();
     const { data, error } = await supabase
       .from('servicios')
       .select(`*, registros_asistencia(${cols})`)
-      .gte('fecha_hora', req.query.fecha + 'T00:00:00')
-      .lte('fecha_hora', req.query.fecha + 'T23:59:59')
-      .order('fecha_hora', { ascending: true });
+      .gte('fecha_hora', desde)
+      .order('fecha_hora', { ascending: false });
     if (error) throw new AppError(error.message, 500);
     ok(res, data || []);
   } catch (e) { next(e); }
