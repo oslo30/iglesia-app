@@ -203,7 +203,7 @@ router.get('/dashboard', async (req, res, next) => {
     };
 
     // Tendencia mensual (últimos 6 meses)
-    const hace6Meses = new Date(hoy);
+    const hace6Meses = new Date(ahoraColombia);
     hace6Meses.setMonth(hace6Meses.getMonth() - 6);
     const mesesNombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
     const tendenciaMensual = {};
